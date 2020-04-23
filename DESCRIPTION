@@ -1,0 +1,8 @@
+Package: MOWRandomForest
+Type: Package
+Title: Random forest algorithm implementation
+Version: 1.0.0
+Description: Random forest algorithm implementation 
+  with use of rpart library
+Encoding: UTF-8
+LazyData: true
