@@ -6,3 +6,6 @@ Description: Random forest algorithm implementation
   with use of rpart library
 Encoding: UTF-8
 LazyData: true
+Depends:
+    R (>= 3.6.3),
+    rpart (>= 4.1-15)
