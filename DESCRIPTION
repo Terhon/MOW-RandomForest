@@ -8,4 +8,5 @@ Encoding: UTF-8
 LazyData: true
 Depends:
     R (>= 3.6.3),
-    rpart (>= 4.1-15)
+    rpart (>= 4.1-15),
+    pryr (>= 0.1.4)
