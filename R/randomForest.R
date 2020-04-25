@@ -71,7 +71,7 @@ predict.randomForest <- function (randomForestObject, data, type = c("class", "v
   match.arg(type)
 
   predictions <- sapply(randomForestObject, function (tree) {
-    predict(tree, data)
+    predict(tree, data, type = type, ...)
   })
 
   if (type == "vector") {
