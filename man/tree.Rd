@@ -7,7 +7,7 @@
 tree(
   formula,
   data,
-  attributesToChooseCount = ncol(data) - 1,
+  attributesToChooseCount = sqrt(ncol(data) - 1),
   method,
   parms = list(),
   ...

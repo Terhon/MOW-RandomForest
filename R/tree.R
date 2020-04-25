@@ -25,7 +25,7 @@
 #' t <- tree(y~., data, 2, method=method)
 #'
 #' @export
-tree <- function(formula, data, attributesToChooseCount=ncol(data)-1, method, parms=list(), ...) {
+tree <- function(formula, data, attributesToChooseCount=sqrt(ncol(data)-1), method, parms=list(), ...) {
   rpartArgs <- list(...)
   rpartArgs$formula <- formula
   rpartArgs$data <- data
