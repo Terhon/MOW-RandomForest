@@ -1,8 +1,8 @@
-#' Random Forest algorithm.
+#' Random Forest train algorithm.
 #'
-#' Creates a random forest.
+#' Creates a random forest and trains it.
 #'
-#' Creates a single random forest trees with random selecting attributes before splitting node and with bootstrapping method.
+#' Creates a random forest trees with random selecting attributes before splitting node and with bootstrapping method.
 #' To build trees uses rpart package.
 #'
 #' @param formula Random forest formula
@@ -26,7 +26,7 @@
 #' @examples
 #' method <- list(eval=evalNode, split=splitNode, init=initTree)
 #' data <- data.frame(y = numeric(10), a = numeric(10), b = numeric(10))
-#' forest <- randomForest(y~., data, 2, method=method)
+#' forest <- randomForest(y~., data, 2, numberOfTrees=3, method=method)
 #'
 #' @export
 randomForest <- function (formula, data, attributesToChooseCount=sqrt(ncol(data)-1), bootstrap=FALSE, numberOfTrees=1, method, ...) {
@@ -45,4 +45,27 @@ randomForest <- function (formula, data, attributesToChooseCount=sqrt(ncol(data)
 
   class(forest) <- "randomForest"
   forest
+}
+
+#' Random Forest predict algorithm.
+#'
+#' Predicts with use of random forest algorithm.
+#'
+#' Predicts on single tress of random forest and average results.
+#' Function is associated with predict method.
+#'
+#' @param randomForestObject Random forest object
+#' @param data Data table on which to predict
+#'
+#' @return Random forest prediction results
+#'
+#' @examples
+#' method <- list(eval=evalNode, split=splitNode, init=initTree)
+#' data <- data.frame(y = numeric(10), a = numeric(10), b = numeric(10))
+#' forest <- randomForest(y~., data, 2, numberOfTrees=3, method=method)
+#' prediction <- predict(forest, data)
+#'
+#' @export
+predict.randomForest <- function (randomForestObject, data, type = c("vector", "prob", "class"), ...) {
+  0
 }

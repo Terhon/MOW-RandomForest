@@ -2,7 +2,7 @@
 % Please edit documentation in R/randomForest.R
 \name{randomForest}
 \alias{randomForest}
-\title{Random Forest algorithm.}
+\title{Random Forest train algorithm.}
 \usage{
 randomForest(
   formula,
@@ -49,15 +49,15 @@ randomForest(
 Random forest construction containg trained trees
 }
 \description{
-Creates a random forest.
+Creates a random forest and trains it.
 }
 \details{
-Creates a single random forest trees with random selecting attributes before splitting node and with bootstrapping method.
+Creates a random forest trees with random selecting attributes before splitting node and with bootstrapping method.
 To build trees uses rpart package.
 }
 \examples{
 method <- list(eval=evalNode, split=splitNode, init=initTree)
 data <- data.frame(y = numeric(10), a = numeric(10), b = numeric(10))
-forest <- randomForest(y~., data, 2, method=method)
+forest <- randomForest(y~., data, 2, numberOfTrees=3, method=method)
 
 }
