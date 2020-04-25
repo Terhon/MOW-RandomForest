@@ -41,6 +41,7 @@ tree <- function(formula, data, attributesToChooseCount=sqrt(ncol(data)-1), meth
   wrappedMethods <- list(eval=evalFunction, split=splitFunction, init=method['init'])
 
   rpartArgs$method <- wrappedMethods
+  rpartArgs$parms <- treeParameters
   do.call(rpart, rpartArgs)
 }
 
