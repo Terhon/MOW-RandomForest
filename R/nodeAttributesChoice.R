@@ -60,7 +60,7 @@ nodeAttributesChoice.chooseAttributes <- function(info) {
 #'
 nodeAttributesChoice.isAttributeChosen <- function(info) {
    attributeMask <- info$chosenAttributes == info$currentAttribute
-   foundAttributeCount = sum(attributeMask)
+   foundAttributeCount <- sum(attributeMask)
 
    if (foundAttributeCount > 0) {
       info$chosenAttributes <- info$chosenAttributes[!attributeMask]
