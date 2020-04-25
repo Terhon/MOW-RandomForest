@@ -1,12 +1,16 @@
 Package: MOWRandomForest
 Type: Package
-Title: Random forest algorithm implementation
+Title: Random Forest Algorithm Implementation
 Version: 1.0.0
+Author: MOW
+Maintainer: MOW <mow@mow.net>
 Description: Random forest algorithm implementation 
   with use of rpart library
+License: No licence
 Encoding: UTF-8
 LazyData: true
 Depends:
     R (>= 3.6.3),
     rpart (>= 4.1-15),
     pryr (>= 0.1.4)
+RoxygenNote: 7.1.0
