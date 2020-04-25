@@ -56,6 +56,7 @@ randomForest <- function (formula, data, attributesToChooseCount=sqrt(ncol(data)
 #'
 #' @param randomForestObject Random forest object
 #' @param data Data table on which to predict
+#' @param type Type of prediction - "class" or "vector" (regression)
 #'
 #' @return Random forest prediction results
 #'
@@ -66,6 +67,21 @@ randomForest <- function (formula, data, attributesToChooseCount=sqrt(ncol(data)
 #' prediction <- predict(forest, data)
 #'
 #' @export
-predict.randomForest <- function (randomForestObject, data, type = c("vector", "prob", "class"), ...) {
-  0
+predict.randomForest <- function (randomForestObject, data, type = c("class", "vector"), ...) {
+  match.arg(type)
+
+  predictions <- sapply(randomForestObject, function (tree) {
+    predict(tree, data)
+  })
+
+  if (type == "vector") {
+    result <- apply(predictions, 2, mean)
+  } else if (type == "class") {
+    result <- apply(predictions, 2, function (pred) {
+      uniq <- unique(pred)
+      uniq[which.max(tabulate(match(pred, uniq)))]
+    })
+  }
+
+  result
 }

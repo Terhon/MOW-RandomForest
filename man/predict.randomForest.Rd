@@ -4,17 +4,14 @@
 \alias{predict.randomForest}
 \title{Random Forest predict algorithm.}
 \usage{
-\method{predict}{randomForest}(
-  randomForestObject,
-  data,
-  type = c("vector", "prob", "class"),
-  na.action = na.pass
-)
+\method{predict}{randomForest}(randomForestObject, data, type = c("class", "vector"), ...)
 }
 \arguments{
 \item{randomForestObject}{Random forest object}
 
 \item{data}{Data table on which to predict}
+
+\item{type}{Type of prediction - "class" or "vector" (regression)}
 }
 \value{
 Random forest prediction results
