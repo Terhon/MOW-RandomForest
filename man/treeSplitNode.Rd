@@ -9,7 +9,7 @@ treeSplitNode(splitFunction, y, wt, x, parms, continuous)
 \arguments{
 \item{y}{Destination attribute to predict}
 
-\item{wt}{Attribute weights in tree}
+\item{wt}{Examples weights in tree}
 
 \item{x}{Attribute that will be splitted}
 

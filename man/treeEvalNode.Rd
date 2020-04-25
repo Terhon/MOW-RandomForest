@@ -11,7 +11,7 @@ treeEvalNode(evalMethod, y, wt, parms)
 
 \item{y}{Destination attribute to predict}
 
-\item{wt}{Attribute weights in tree}
+\item{wt}{Examples weights in tree}
 
 \item{parms}{Tree parameters - contains NodeAttributesChoiceInfo structure and user additional parameters}
 }

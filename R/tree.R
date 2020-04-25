@@ -3,16 +3,32 @@
 #' Creates a single random forest tree with random selecting attributes before splitting node.
 #' To build a tree uses rpart package.
 #'
-#' @param e example
+#' @param formula Tree formula
+#' @param data Data table
+#' @param attributesToChooseCount Number of attributes to choose while splitting node.
+#' @param weights Tree examples weights
+#' @param subset Expression saying that only a subset of the rows of the data should be used in the fit.
+#' @param na.action The default action deletes all observations for which y is missing, but keeps those in which one or more predictors are missing.
+#' @param method User split methods.
+#' @param model Keep a copy of the model frame in the result.
+#' @param x Keep a copy of the x matrix in the result.
+#' @param y Keep a copy of the dependent variable in the result.
+#' @param parms Optional parameters for the splitting function.
+#' @param control A list of options that control details of the rpart algorithm.
+#' @param cost A vector of non-negative costs.
 #'
 #' @return Rpart tree build using wrapped function that selects attributes.
 #'
 #' @examples
-#' randomForest()
+#' method <- list(eval=evalNode, split=splitNode, init=initTree)
+#' data <- data.frame(y = numeric(10), a = numeric(10), b = numeric(10))
+#' t <- tree(y~., data, 2, method=method)
 #'
 #' @export
-tree <- function(formula, data, attributesToChooseCount, weights, subset, na.action = na.rpart, method,
-                      model = FALSE, x = FALSE, y = TRUE, parms, control, costr) {
+tree <- function(formula, data, attributesToChooseCount=ncol(data)-1, method, parms=list(), ...) {
+  rpartArgs <- list(...)
+  rpartArgs$formula <- formula
+  rpartArgs$data <- data
 
   allAttributesCount <- ncol(data) - 1
 
@@ -24,8 +40,8 @@ tree <- function(formula, data, attributesToChooseCount, weights, subset, na.act
   splitFunction <- partial(treeSplitNode, method$split)
   wrappedMethods <- list(eval=evalFunction, split=splitFunction, init=method['init'])
 
-  rpart(formula, data, weights, subset, na.action, wrappedMethods,
-       model, x, y, treeParameters, control, cost)
+  rpartArgs$method <- wrappedMethods
+  do.call(rpart, rpartArgs)
 }
 
 #' Rpart eval wrapper function for selecting atributes in tree.
@@ -34,7 +50,7 @@ tree <- function(formula, data, attributesToChooseCount, weights, subset, na.act
 #'
 #' @param evalMethod User eval method - it will be executed
 #' @param y Destination attribute to predict
-#' @param wt Attribute weights in tree
+#' @param wt Examples weights in tree
 #' @param parms Tree parameters - contains NodeAttributesChoiceInfo structure and user additional parameters
 #'
 #' @return Result of user evalMethod
@@ -52,7 +68,7 @@ treeEvalNode <- function (evalMethod, y, wt, parms) {
 #'
 #' @param evalMethod User eval method - it will be executed
 #' @param y Destination attribute to predict
-#' @param wt Attribute weights in tree
+#' @param wt Examples weights in tree
 #' @param x Attribute that will be splitted
 #' @param parms Tree parameters - contains NodeAttributesChoiceInfo and user additional parameters
 #' @param continuous Is attribute continuous

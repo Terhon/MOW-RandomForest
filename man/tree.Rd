@@ -7,21 +7,38 @@
 tree(
   formula,
   data,
-  attributesToChooseCount,
-  weights,
-  subset,
-  na.action = na.rpart,
+  attributesToChooseCount = ncol(data) - 1,
   method,
-  model = FALSE,
-  x = FALSE,
-  y = TRUE,
-  parms,
-  control,
-  costr
+  parms = list(),
+  ...
 )
 }
 \arguments{
-\item{e}{example}
+\item{formula}{Tree formula}
+
+\item{data}{Data table}
+
+\item{attributesToChooseCount}{Number of attributes to choose while splitting node.}
+
+\item{method}{User split methods.}
+
+\item{parms}{Optional parameters for the splitting function.}
+
+\item{weights}{Tree examples weights}
+
+\item{subset}{Expression saying that only a subset of the rows of the data should be used in the fit.}
+
+\item{na.action}{The default action deletes all observations for which y is missing, but keeps those in which one or more predictors are missing.}
+
+\item{model}{Keep a copy of the model frame in the result.}
+
+\item{x}{Keep a copy of the x matrix in the result.}
+
+\item{y}{Keep a copy of the dependent variable in the result.}
+
+\item{control}{A list of options that control details of the rpart algorithm.}
+
+\item{cost}{A vector of non-negative costs.}
 }
 \value{
 Rpart tree build using wrapped function that selects attributes.
@@ -31,6 +48,8 @@ Creates a single random forest tree with random selecting attributes before spli
 To build a tree uses rpart package.
 }
 \examples{
-randomForest()
+method <- list(eval=evalNode, split=splitNode, init=initTree)
+data <- data.frame(y = numeric(10), a = numeric(10), b = numeric(10))
+t <- tree(y~., data, 2, method=method)
 
 }
