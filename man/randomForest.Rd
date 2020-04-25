@@ -4,18 +4,60 @@
 \alias{randomForest}
 \title{Random Forest algorithm.}
 \usage{
-randomForest(e)
+randomForest(
+  formula,
+  data,
+  attributesToChooseCount = sqrt(ncol(data) - 1),
+  bootstrap = FALSE,
+  numberOfTrees = 1,
+  method,
+  ...
+)
 }
 \arguments{
-\item{e}{example}
+\item{formula}{Random forest formula}
+
+\item{data}{Data table}
+
+\item{attributesToChooseCount}{Number of attributes to choose while splitting node - default sqrt(n) where n number of attributes.}
+
+\item{bootstrap}{Use bootstrap method - default=FALSE.}
+
+\item{numberOfTrees}{Number of trees in random forest.}
+
+\item{method}{User split methods.}
+
+\item{weights}{Tree examples weights}
+
+\item{subset}{Expression saying that only a subset of the rows of the data should be used in the fit.}
+
+\item{na.action}{The default action deletes all observations for which y is missing, but keeps those in which one or more predictors are missing.}
+
+\item{model}{Keep a copy of the model frame in the result.}
+
+\item{x}{Keep a copy of the x matrix in the result.}
+
+\item{y}{Keep a copy of the dependent variable in the result.}
+
+\item{parms}{Optional parameters for the splitting function.}
+
+\item{control}{A list of options that control details of the rpart algorithm.}
+
+\item{cost}{A vector of non-negative costs.}
 }
 \value{
-None
+Random forest construction containg trained trees
 }
 \description{
 Creates a random forest.
 }
+\details{
+Creates a single random forest trees with random selecting attributes before splitting node and with bootstrapping method.
+To build trees uses rpart package.
+}
 \examples{
-randomForest()
+method <- list(eval=evalNode, split=splitNode, init=initTree)
+data <- data.frame(y = numeric(10), a = numeric(10), b = numeric(10))
+forest <- randomForest(y~., data, 2, method=method)
 
 }

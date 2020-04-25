@@ -5,7 +5,8 @@
 #'
 #' @param formula Tree formula
 #' @param data Data table
-#' @param attributesToChooseCount Number of attributes to choose while splitting node.
+#' @param attributesToChooseCount Number of attributes to choose while splitting node - default sqrt(n) where n number of attributes.
+#' @param bootstrap Use bootstrap method - default=FALSE.
 #' @param weights Tree examples weights
 #' @param subset Expression saying that only a subset of the rows of the data should be used in the fit.
 #' @param na.action The default action deletes all observations for which y is missing, but keeps those in which one or more predictors are missing.
@@ -25,7 +26,12 @@
 #' t <- tree(y~., data, 2, method=method)
 #'
 #' @export
-tree <- function(formula, data, attributesToChooseCount=sqrt(ncol(data)-1), method, parms=list(), ...) {
+tree <- function(formula, data, attributesToChooseCount=sqrt(ncol(data)-1), bootstrap=FALSE, method, parms=list(), ...) {
+  if (bootstrap){
+    bootstrapIndexes <- sample(nrow(data), replace=TRUE)
+    data <- data[bootstrapIndexes,]
+  }
+
   rpartArgs <- list(...)
   rpartArgs$formula <- formula
   rpartArgs$data <- data
@@ -40,7 +46,7 @@ tree <- function(formula, data, attributesToChooseCount=sqrt(ncol(data)-1), meth
   splitFunction <- partial(treeSplitNode, method$split)
   wrappedMethods <- list(eval=evalFunction, split=splitFunction, init=method['init'])
 
-  rpartArgs$method <- wrappedMethods
+  #rpartArgs$method <- wrappedMethods
   rpartArgs$parms <- treeParameters
   do.call(rpart, rpartArgs)
 }

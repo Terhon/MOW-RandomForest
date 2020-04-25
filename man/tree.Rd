@@ -8,6 +8,7 @@ tree(
   formula,
   data,
   attributesToChooseCount = sqrt(ncol(data) - 1),
+  bootstrap = FALSE,
   method,
   parms = list(),
   ...
@@ -18,7 +19,9 @@ tree(
 
 \item{data}{Data table}
 
-\item{attributesToChooseCount}{Number of attributes to choose while splitting node.}
+\item{attributesToChooseCount}{Number of attributes to choose while splitting node - default sqrt(n) where n number of attributes.}
+
+\item{bootstrap}{Use bootstrap method - default=FALSE.}
 
 \item{method}{User split methods.}
 
