@@ -28,7 +28,7 @@ nodeAttributesChoiceInfo <- createEnvironment()
 #' t <- tree(y~., data, 2, method=method)
 #'
 #' @export
-tree <- function(formula, data, attributesToChooseCount=sqrt(ncol(data)-1), bootstrap=FALSE, method, parms=list(), ...) {
+tree <- function(formula, data, attributesToChooseCount=floor(sqrt(ncol(data)-1)), bootstrap=FALSE, method, parms=list(), ...) {
   if (bootstrap){
     bootstrapIndexes <- sample(nrow(data), replace=TRUE)
     data <- data[bootstrapIndexes,]
