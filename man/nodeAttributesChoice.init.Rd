@@ -4,9 +4,15 @@
 \alias{nodeAttributesChoice.init}
 \title{Creates environment structure containing basic information about choosing attributes in trees.}
 \usage{
-nodeAttributesChoice.init(attributesToChooseCount, allAttributesCount)
+nodeAttributesChoice.init(
+  nodeAttributesChoiceInfo,
+  attributesToChooseCount,
+  allAttributesCount
+)
 }
 \arguments{
+\item{nodeAttributesChoiceInfo}{Environment structure to be initialized}
+
 \item{attributesToChooseCount}{Number of attributes to choose in tree.}
 
 \item{allAttributesCount}{Total count of attributes in tree.}
@@ -18,8 +24,9 @@ NodeAttributesChoiceInfo environment structure containing basic information abou
 Creates environment structure containing basic information about choosing attributes in trees.
 }
 \examples{
+nodeAttributesChoiceInfo <- createEnvironment()
 attributesToChooseCount <- 2
 allAttributesCount <- 3
-nodeAttributesChoice.init(attributesToChooseCount, allAttributesCount)
+nodeAttributesChoice.init(nodeAttributesChoiceInfo, attributesToChooseCount, allAttributesCount)
 
 }

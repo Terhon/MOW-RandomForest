@@ -1,3 +1,5 @@
+nodeAttributesChoiceInfo <- createEnvironment()
+
 #' Creates a single random forest tree.
 #'
 #' Creates a single random forest tree with random selecting attributes before splitting node.
@@ -38,16 +40,14 @@ tree <- function(formula, data, attributesToChooseCount=sqrt(ncol(data)-1), boot
 
   allAttributesCount <- ncol(data) - 1
 
-  treeParameters <- createEnvironment()
-  treeParameters$nodeAttributesChoiceInfo <- nodeAttributesChoice.init(attributesToChooseCount, allAttributesCount)
-  treeParameters$userParms <- parms
+  nodeAttributesChoice.init(nodeAttributesChoiceInfo, attributesToChooseCount, allAttributesCount)
 
   evalFunction <- partial(treeEvalNode, method$eval)
   splitFunction <- partial(treeSplitNode, method$split)
-  wrappedMethods <- list(eval=evalFunction, split=splitFunction, init=method[['init']])
+  wrappedMethods <- list(eval=evalFunction, split=splitFunction, init=method$init)
 
   rpartArgs$method <- wrappedMethods
-  rpartArgs$parms <- treeParameters
+  rpartArgs$parms <- parms
   do.call(rpart, rpartArgs)
 }
 
@@ -58,12 +58,12 @@ tree <- function(formula, data, attributesToChooseCount=sqrt(ncol(data)-1), boot
 #' @param evalMethod User eval method - it will be executed
 #' @param y Destination attribute to predict
 #' @param wt Examples weights in tree
-#' @param parms Tree parameters - contains NodeAttributesChoiceInfo structure and user additional parameters
+#' @param parms Tree user parameters
 #'
 #' @return Result of user evalMethod
 #'
 treeEvalNode <- function (evalMethod, y, wt, parms) {
-  nodeAttributesChoice.chooseAttributes(parms$nodeAttributesChoiceInfo)
+  nodeAttributesChoice.chooseAttributes(nodeAttributesChoiceInfo)
   evalMethod(y, wt, parms)
 }
 
@@ -77,13 +77,13 @@ treeEvalNode <- function (evalMethod, y, wt, parms) {
 #' @param y Destination attribute to predict
 #' @param wt Examples weights in tree
 #' @param x Attribute that will be splitted
-#' @param parms Tree parameters - contains NodeAttributesChoiceInfo and user additional parameters
+#' @param parms Tree user parameters
 #' @param continuous Is attribute continuous
 #'
 #' @return Result of user splitFunction or zero goodness vector of splits.
 #'
 treeSplitNode <- function (splitFunction, y, wt, x, parms, continuous) {
-  if (nodeAttributesChoice.isAttributeChosen(parms$nodeAttributesChoiceInfo)) {
+  if (nodeAttributesChoice.isAttributeChosen(nodeAttributesChoiceInfo)) {
     result <- splitFunction(y, wt, x, parms, continuous)
   } else {
     if (continuous) {

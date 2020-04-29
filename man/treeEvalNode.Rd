@@ -13,7 +13,7 @@ treeEvalNode(evalMethod, y, wt, parms)
 
 \item{wt}{Examples weights in tree}
 
-\item{parms}{Tree parameters - contains NodeAttributesChoiceInfo structure and user additional parameters}
+\item{parms}{Tree user parameters}
 }
 \value{
 Result of user evalMethod

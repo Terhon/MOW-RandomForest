@@ -13,7 +13,7 @@ treeSplitNode(splitFunction, y, wt, x, parms, continuous)
 
 \item{x}{Attribute that will be splitted}
 
-\item{parms}{Tree parameters - contains NodeAttributesChoiceInfo and user additional parameters}
+\item{parms}{Tree user parameters}
 
 \item{continuous}{Is attribute continuous}
 

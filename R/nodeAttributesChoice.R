@@ -1,21 +1,22 @@
 #' Creates environment structure containing basic information about choosing attributes in trees.
 #'
+#' @param nodeAttributesChoiceInfo Environment structure to be initialized
 #' @param attributesToChooseCount Number of attributes to choose in tree.
 #' @param allAttributesCount Total count of attributes in tree.
 #'
 #' @return NodeAttributesChoiceInfo environment structure containing basic information about choosing tree attributes.
 #'
 #' @examples
+#' nodeAttributesChoiceInfo <- createEnvironment()
 #' attributesToChooseCount <- 2
 #' allAttributesCount <- 3
-#' nodeAttributesChoice.init(attributesToChooseCount, allAttributesCount)
+#' nodeAttributesChoice.init(nodeAttributesChoiceInfo, attributesToChooseCount, allAttributesCount)
 #'
-nodeAttributesChoice.init <- function(attributesToChooseCount, allAttributesCount) {
+nodeAttributesChoice.init <- function(nodeAttributesChoiceInfo, attributesToChooseCount, allAttributesCount) {
    if (attributesToChooseCount > allAttributesCount){
       stop("AttributesToChooseCount has to be smaller or equal than AllAttributesCount")
    }
 
-   nodeAttributesChoiceInfo <- createEnvironment()
    nodeAttributesChoiceInfo$attributesToChooseCount <- attributesToChooseCount
    nodeAttributesChoiceInfo$allAttributesCount <- allAttributesCount
    nodeAttributesChoiceInfo
