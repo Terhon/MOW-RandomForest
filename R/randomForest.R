@@ -13,7 +13,7 @@
 #' @param weights Tree examples weights
 #' @param subset Expression saying that only a subset of the rows of the data should be used in the fit.
 #' @param na.action The default action deletes all observations for which y is missing, but keeps those in which one or more predictors are missing.
-#' @param method User split methods.
+#' @param method User split methods or specific split functions ("anova", "class", "default").
 #' @param model Keep a copy of the model frame in the result.
 #' @param x Keep a copy of the x matrix in the result.
 #' @param y Keep a copy of the dependent variable in the result.
@@ -29,12 +29,13 @@
 #' forest <- randomForest(y~., data, 2, numberOfTrees=3, method=method)
 #'
 #' @export
-randomForest <- function (formula, data, attributesToChooseCount=sqrt(ncol(data)-1), bootstrap=FALSE, numberOfTrees=1, method, ...) {
+randomForest <- function (formula, data, attributesToChooseCount=sqrt(ncol(data)-1), bootstrap=FALSE, numberOfTrees=1, na.action=na.rpart, method="default", ...) {
   treeArgs <- list(...)
   treeArgs$formula <- formula
   treeArgs$data <- data
   treeArgs$attributesToChooseCount <- attributesToChooseCount
   treeArgs$bootstrap <- bootstrap
+  treeArgs$na.action <- na.action
   treeArgs$method <- method
 
   forest <- list()

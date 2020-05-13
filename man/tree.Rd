@@ -9,7 +9,9 @@ tree(
   data,
   attributesToChooseCount = floor(sqrt(ncol(data) - 1)),
   bootstrap = FALSE,
-  method,
+  na.action = na.rpart,
+  method = "default",
+  model = FALSE,
   parms = list(),
   ...
 )
@@ -23,17 +25,17 @@ tree(
 
 \item{bootstrap}{Use bootstrap method - default=FALSE.}
 
-\item{method}{User split methods.}
+\item{na.action}{The default action deletes all observations for which y is missing, but keeps those in which one or more predictors are missing.}
+
+\item{method}{User split methods or specific split functions ("anova", "class", "default").}
+
+\item{model}{Keep a copy of the model frame in the result.}
 
 \item{parms}{Optional parameters for the splitting function.}
 
 \item{weights}{Tree examples weights}
 
 \item{subset}{Expression saying that only a subset of the rows of the data should be used in the fit.}
-
-\item{na.action}{The default action deletes all observations for which y is missing, but keeps those in which one or more predictors are missing.}
-
-\item{model}{Keep a copy of the model frame in the result.}
 
 \item{x}{Keep a copy of the x matrix in the result.}
 

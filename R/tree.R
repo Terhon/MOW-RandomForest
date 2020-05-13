@@ -12,7 +12,7 @@ nodeAttributesChoiceInfo <- createEnvironment()
 #' @param weights Tree examples weights
 #' @param subset Expression saying that only a subset of the rows of the data should be used in the fit.
 #' @param na.action The default action deletes all observations for which y is missing, but keeps those in which one or more predictors are missing.
-#' @param method User split methods.
+#' @param method User split methods or specific split functions ("anova", "class", "default").
 #' @param model Keep a copy of the model frame in the result.
 #' @param x Keep a copy of the x matrix in the result.
 #' @param y Keep a copy of the dependent variable in the result.
@@ -28,7 +28,7 @@ nodeAttributesChoiceInfo <- createEnvironment()
 #' t <- tree(y~., data, 2, method=method)
 #'
 #' @export
-tree <- function(formula, data, attributesToChooseCount=floor(sqrt(ncol(data)-1)), bootstrap=FALSE, method, parms=list(), ...) {
+tree <- function(formula, data, attributesToChooseCount=floor(sqrt(ncol(data)-1)), bootstrap=FALSE, na.action=na.rpart, method="default", model=FALSE, parms=list(), ...) {
   if (bootstrap){
     bootstrapIndexes <- sample(nrow(data), replace=TRUE)
     data <- data[bootstrapIndexes,]
@@ -41,6 +41,35 @@ tree <- function(formula, data, attributesToChooseCount=floor(sqrt(ncol(data)-1)
   allAttributesCount <- ncol(data) - 1
 
   nodeAttributesChoice.init(nodeAttributesChoiceInfo, attributesToChooseCount, allAttributesCount)
+
+  if (method == "default") {
+    userModel <- model
+
+    if (is.data.frame(model)) {
+      m <- model
+      model <- FALSE
+    } else {
+      m <- stats::model.frame(formula=formula, data=data, na.action=na.action)
+    }
+
+    Y <- model.response(m)
+    method <- if (is.factor(Y) || is.character(Y)) "class"
+             else "anova"
+    model <- userModel
+    method <- "anova"
+  }
+
+  if (method == "anova"){
+    method <- list()
+    method$init <- initAnova
+    method$eval <- evalAnova
+    method$split <- splitAnova
+  } else if (method == "class") {
+    method <- list()
+    method$init <- initEntropia
+    method$eval <- evalEntropia
+    method$split <- splitEntropia
+  }
 
   evalFunction <- partial(treeEvalNode, method$eval)
   splitFunction <- partial(treeSplitNode, method$split)

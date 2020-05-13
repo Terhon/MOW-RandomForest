@@ -10,7 +10,8 @@ randomForest(
   attributesToChooseCount = sqrt(ncol(data) - 1),
   bootstrap = FALSE,
   numberOfTrees = 1,
-  method,
+  na.action = na.rpart,
+  method = "default",
   ...
 )
 }
@@ -25,13 +26,13 @@ randomForest(
 
 \item{numberOfTrees}{Number of trees in random forest.}
 
-\item{method}{User split methods.}
+\item{na.action}{The default action deletes all observations for which y is missing, but keeps those in which one or more predictors are missing.}
+
+\item{method}{User split methods or specific split functions ("anova", "class", "default").}
 
 \item{weights}{Tree examples weights}
 
 \item{subset}{Expression saying that only a subset of the rows of the data should be used in the fit.}
-
-\item{na.action}{The default action deletes all observations for which y is missing, but keeps those in which one or more predictors are missing.}
 
 \item{model}{Keep a copy of the model frame in the result.}
 
