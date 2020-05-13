@@ -18,21 +18,27 @@ initGini <- function(y, offset, parms, wt) {
   list(y = c(y), parms = parms, numresp = 1, numy = 1, summary = sfun)
 }
 
-giniImpurity <- function(prob) {
+c <- function(prob) {
   1 - sum(prob ** 2)
 }
 
-evalGini <- function(y, wt, parms) {
-  probSum <- 0
-  prob <- table(parms$classes) - 1
+getClassWeightsInfo <- function(y, wt, parms){
+  weightsSum <- 0
+  classWeights <- table(parms$classes) - 1
 
   for (i in 1:length(y)){
-    probSum <- probSum + wt[i]
+    weightsSum <- weightsSum + wt[i]
     class <- toString(y[i])
-    prob[[class]] <- prob[[class]] + wt[i]
+    classWeights[[class]] <- classWeights[[class]] + wt[i]
   }
 
-  prob <- prob / probSum
+  list(classWeights=classWeights, weightsSum=weightSum)
+}
+
+evalGini <- function(y, wt, parms) {
+  weightsInfo <- getClassWeightsInfo(y, wt, parms)
+
+  prob <- weightsInfo$classWeights / weightsInfo$weightsSum
 
   gini <- giniImpurity(prob)
   lab <- names(which.max(prob))[[1]]
@@ -42,5 +48,33 @@ evalGini <- function(y, wt, parms) {
 
 splitGini <- function(y, wt, x, parms, continuous)
 {
+  if (continuous) {
+    nodeWeightsInfo <- getClassWeightsInfo(y, wt, parms)
+    maxImpurity <- giniImpurity(nodeWeightsInfo$classWeights / nodeWeightsInfo$weightsSum)
 
+    left <- nodeWeightsInfo$classWeights
+    right <- table(parms$classes) - 1
+
+    leftSum <- nodeWeightsInfo$weightsSum
+    rightSum <- 0
+
+    n <- length(y)
+    goodness <- table(1:n-1)
+    for (i in 1:(n-1)){
+      class <- toString(y[i])
+      left[[class]] <- left[[class]] - wt[i]
+      right[[class]] <- right[[class]] + wt[i]
+
+      leftSum <- leftSum - y[i]
+      rightSum <- rightSum + y[i]
+
+      leftImpurity <- giniImpurity(left / leftSum)
+      rightImpurity <- giniImpurity(right / rightSum)
+      goodness[[i]] <- maxImpurity - ((i * leftImpurity + (n - i) * rightImpurity) / n)
+    }
+  } else {
+
+  }
+
+  list(goodness=goodness, direction=rep(1, n))
 }
