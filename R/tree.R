@@ -66,9 +66,9 @@ tree <- function(formula, data, attributesToChooseCount=floor(sqrt(ncol(data)-1)
     method$split <- splitAnova
   } else if (method == "class") {
     method <- list()
-    method$init <- initEntropia
-    method$eval <- evalEntropia
-    method$split <- splitEntropia
+    method$init <- initGini
+    method$eval <- evalGini
+    method$split <- splitGini
   }
 
   evalFunction <- partial(treeEvalNode, method$eval)
