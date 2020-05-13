@@ -55,8 +55,8 @@ tree <- function(formula, data, attributesToChooseCount=floor(sqrt(ncol(data)-1)
     Y <- model.response(m)
     method <- if (is.factor(Y) || is.character(Y)) "class"
              else "anova"
+
     model <- userModel
-    method <- "anova"
   }
 
   if (method == "anova"){
