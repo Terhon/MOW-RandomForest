@@ -19,16 +19,9 @@ giniImpurity <- function(prob) {
 }
 
 getClassWeightsInfo <- function(y, wt, parms){
-  weightsSum <- 0
   classes <- unique(y)
-  classWeights <- table(classes) - 1
-
-  for (i in 1:length(y)){
-    weightsSum <- weightsSum + wt[[i]]
-    class <- toString(y[[i]])
-
-    classWeights[[class]] <- classWeights[[class]] + wt[[i]]
-  }
+  classWeights <- tapply(wt, y, sum)
+  weightsSum <- sum(classWeights)
 
   list(classWeights=classWeights, weightsSum=weightsSum, classes=classes)
 }
@@ -44,37 +37,22 @@ evalGini <- function(y, wt, parms) {
   list(label = lab, deviance = gini)
 }
 
-getGiniGoodness <- function (maxImpurity, leftProb, rightProb, leftCount, allCount){
-  leftImpurity <- giniImpurity(leftProb)
-  rightImpurity <- giniImpurity(rightProb)
-  maxImpurity - ((leftCount * leftImpurity + (allCount - leftCount) * rightImpurity) / allCount)
-
+getGiniGoodness <- function (maxImpurity, leftClassWeights, leftWeights, rightClassWeights, rightWeights, allWeights){
+  leftImpurity <- giniImpurity(leftClassWeights / leftWeights)
+  rightImpurity <- giniImpurity(rightClassWeights / rightWeights)
+  maxImpurity - ((leftWeights * leftImpurity + rightWeights * rightImpurity) / allWeights)
 }
 
-splitUniqueGini <- function(y, wt, x, ux, n, maxImpurity, nodeWeightsInfo){
+splitUniqueGini <- function(y, wt, x, ux, maxImpurity, allWeights){
   mask <- x == ux
 
-  y <- y[mask]
-  wt <- wt[mask]
+  left <- tapply(wt[mask], y[mask], sum)
+  right <- tapply(wt[!mask], y[!mask], sum)
 
-  leftCount <- sum(mask)
+  leftSum <- sum(left)
+  rightSum <- sum(right)
 
-  left <- table(nodeWeightsInfo$classes) - 1
-  right <- nodeWeightsInfo$classWeights
-
-  leftSum <- 0
-  rightSum <- nodeWeightsInfo$weightsSum
-
-  for (i in 1:leftCount){
-    class <- toString(y[[i]])
-    left[[class]] <- left[[class]] + wt[[i]]
-    right[[class]] <- right[[class]] - wt[[i]]
-
-    leftSum <- leftSum + wt[[i]]
-    rightSum <- rightSum - wt[[i]]
-  }
-
-  getGiniGoodness(maxImpurity, left / leftSum, right / rightSum, leftCount, n)
+  getGiniGoodness(maxImpurity, left, leftSum, right, rightSum, allWeights)
 
 }
 
@@ -83,9 +61,9 @@ splitGini <- function(y, wt, x, parms, continuous)
   nodeWeightsInfo <- getClassWeightsInfo(y, wt, parms)
   maxImpurity <- giniImpurity(nodeWeightsInfo$classWeights / nodeWeightsInfo$weightsSum)
 
-  n <- length(y)
-
   if (continuous) {
+    n <- length(y)
+
     left <- table(nodeWeightsInfo$classes) - 1
     right <- nodeWeightsInfo$classWeights
 
@@ -102,15 +80,14 @@ splitGini <- function(y, wt, x, parms, continuous)
       leftSum <- leftSum + wt[[i]]
       rightSum <- rightSum - wt[[i]]
 
-      goodness[[i]] <- getGiniGoodness(maxImpurity, left / leftSum, right / rightSum, i, n)
+      goodness[[i]] <- getGiniGoodness(maxImpurity, left, leftSum, right, rightSum, nodeWeightsInfo$weightsSum)
     }
 
     list(goodness=goodness, direction=rep(1, n-1))
   } else {
     ux <- unique(x)
     giniGoodness <- sapply(ux, function(val){
-      splitUniqueGini(y, wt, x, val,
-                      n, maxImpurity, nodeWeightsInfo)
+      splitUniqueGini(y, wt, x, val, maxImpurity, nodeWeightsInfo$weightsSum)
     })
 
     ord <- order(giniGoodness)
