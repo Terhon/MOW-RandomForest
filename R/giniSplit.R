@@ -66,12 +66,12 @@ splitUniqueGini <- function(y, wt, x, ux, n, maxImpurity, nodeWeightsInfo){
   rightSum <- nodeWeightsInfo$weightsSum
 
   for (i in 1:leftCount){
-    class <- toString(y[i])
-    left[[class]] <- left[[class]] + wt[i]
-    right[[class]] <- right[[class]] - wt[i]
+    class <- toString(y[[i]])
+    left[[class]] <- left[[class]] + wt[[i]]
+    right[[class]] <- right[[class]] - wt[[i]]
 
-    leftSum <- leftSum + wt[i]
-    rightSum <- rightSum - wt[i]
+    leftSum <- leftSum + wt[[i]]
+    rightSum <- rightSum - wt[[i]]
   }
 
   getGiniGoodness(maxImpurity, left / leftSum, right / rightSum, leftCount, n)
@@ -99,8 +99,8 @@ splitGini <- function(y, wt, x, parms, continuous)
       left[[class]] <- left[[class]] + wt[[i]]
       right[[class]] <- right[[class]] - wt[[i]]
 
-      leftSum <- leftSum + wt[i]
-      rightSum <- rightSum - wt[i]
+      leftSum <- leftSum + wt[[i]]
+      rightSum <- rightSum - wt[[i]]
 
       goodness[[i]] <- getGiniGoodness(maxImpurity, left / leftSum, right / rightSum, i, n)
     }
@@ -117,6 +117,6 @@ splitGini <- function(y, wt, x, parms, continuous)
     goodness <- giniGoodness[ord]
     n <- length(ord)
 
-    list(goodness=goodness[-n],direction = ux[ord])
+    list(goodness=goodness[-n], direction = ux[ord])
   }
 }
