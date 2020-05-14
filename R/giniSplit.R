@@ -11,28 +11,26 @@ initGini <- function(y, offset, parms, wt) {
   }
   environment(sfun) <- .GlobalEnv
 
-  parms <- list()
-  parms$classes <- unique(y)
-  parms$classesCount <- length(parms$classes)
-
-  list(y = c(y), parms = parms, numresp = 1, numy = 1, summary = sfun)
+  list(y = c(y), parms = NULL, numresp = 1, numy = 1, summary = sfun)
 }
 
-c <- function(prob) {
+giniImpurity <- function(prob) {
   1 - sum(prob ** 2)
 }
 
 getClassWeightsInfo <- function(y, wt, parms){
   weightsSum <- 0
-  classWeights <- table(parms$classes) - 1
+  classes <- unique(y)
+  classWeights <- table(classes) - 1
 
   for (i in 1:length(y)){
-    weightsSum <- weightsSum + wt[i]
-    class <- toString(y[i])
-    classWeights[[class]] <- classWeights[[class]] + wt[i]
+    weightsSum <- weightsSum + wt[[i]]
+    class <- toString(y[[i]])
+
+    classWeights[[class]] <- classWeights[[class]] + wt[[i]]
   }
 
-  list(classWeights=classWeights, weightsSum=weightSum)
+  list(classWeights=classWeights, weightsSum=weightsSum, classes=classes)
 }
 
 evalGini <- function(y, wt, parms) {
@@ -46,35 +44,79 @@ evalGini <- function(y, wt, parms) {
   list(label = lab, deviance = gini)
 }
 
-splitGini <- function(y, wt, x, parms, continuous)
-{
-  if (continuous) {
-    nodeWeightsInfo <- getClassWeightsInfo(y, wt, parms)
-    maxImpurity <- giniImpurity(nodeWeightsInfo$classWeights / nodeWeightsInfo$weightsSum)
+getGiniGoodness <- function (maxImpurity, leftProb, rightProb, leftCount, allCount){
+  leftImpurity <- giniImpurity(leftProb)
+  rightImpurity <- giniImpurity(rightProb)
+  maxImpurity - ((leftCount * leftImpurity + (allCount - leftCount) * rightImpurity) / allCount)
 
-    left <- nodeWeightsInfo$classWeights
-    right <- table(parms$classes) - 1
+}
 
-    leftSum <- nodeWeightsInfo$weightsSum
-    rightSum <- 0
+splitUniqueGini <- function(y, wt, x, ux, classes, n, maxImpurity, nodeWeightsInfo){
+  mask <- x == ux
 
-    n <- length(y)
-    goodness <- table(1:n-1)
-    for (i in 1:(n-1)){
-      class <- toString(y[i])
-      left[[class]] <- left[[class]] - wt[i]
-      right[[class]] <- right[[class]] + wt[i]
+  y <- y[mask]
+  wt <- wt[mask]
 
-      leftSum <- leftSum - y[i]
-      rightSum <- rightSum + y[i]
+  leftCount <- sum(mask)
 
-      leftImpurity <- giniImpurity(left / leftSum)
-      rightImpurity <- giniImpurity(right / rightSum)
-      goodness[[i]] <- maxImpurity - ((i * leftImpurity + (n - i) * rightImpurity) / n)
-    }
-  } else {
+  left <- table(classes) - 1
+  right <- nodeWeightsInfo$classWeights
 
+  leftSum <- 0
+  rightSum <- nodeWeightsInfo$weightsSum
+
+  for (i in 1:leftCount){
+    class <- toString(y[i])
+    left[[class]] <- left[[class]] + wt[i]
+    right[[class]] <- right[[class]] - wt[i]
+
+    leftSum <- leftSum + wt[i]
+    rightSum <- rightSum - wt[i]
   }
 
-  list(goodness=goodness, direction=rep(1, n))
+  getGiniGoodness(maxImpurity, left / leftSum, right / rightSum, leftCount, n)
+
+}
+
+splitGini <- function(y, wt, x, parms, continuous)
+{
+  nodeWeightsInfo <- getClassWeightsInfo(y, wt, parms)
+  maxImpurity <- giniImpurity(nodeWeightsInfo$classWeights / nodeWeightsInfo$weightsSum)
+
+  n <- length(y)
+
+  if (continuous) {
+    left <- table(nodeWeightsInfo$classes) - 1
+    right <- nodeWeightsInfo$classWeights
+
+    leftSum <- 0
+    rightSum <- nodeWeightsInfo$weightsSum
+
+    goodness <- rep(0, n-1)
+    for (i in 1:(n-1)){
+      class <- toString(y[[i]])
+
+      left[[class]] <- left[[class]] + wt[[i]]
+      right[[class]] <- right[[class]] - wt[[i]]
+
+      leftSum <- leftSum + wt[i]
+      rightSum <- rightSum - wt[i]
+
+      goodness[[i]] <- getGiniGoodness(maxImpurity, left / leftSum, right / rightSum, i, n)
+    }
+
+    list(goodness=goodness, direction=rep(1, n-1))
+  } else {
+    ux <- unique(x)
+    giniGoodness <- sapply(ux, function(val){
+      splitUniqueGini(y, wt, x, val, nodeWeightsInfo$classes,
+                      n, maxImpurity, nodeWeightsInfo)
+    })
+
+    ord <- order(giniGoodness)
+    goodness <- giniGoodness[ord]
+    n <- length(ord)
+
+    list(goodness=goodness[-n],direction = ux[ord])
+  }
 }
