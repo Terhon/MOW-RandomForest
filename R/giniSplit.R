@@ -40,7 +40,13 @@ evalGini <- function(y, wt, parms) {
 getGiniGoodness <- function (maxImpurity, leftClassWeights, leftWeights, rightClassWeights, rightWeights, allWeights){
   leftImpurity <- giniImpurity(leftClassWeights / leftWeights)
   rightImpurity <- giniImpurity(rightClassWeights / rightWeights)
-  maxImpurity - ((leftWeights * leftImpurity + rightWeights * rightImpurity) / allWeights)
+  leftPart <- leftWeights * leftImpurity
+  rightPart <- rightWeights * rightImpurity
+
+  goodness <- maxImpurity - ((leftPart + rightPart) / allWeights)
+  direction <- 2 * (rightPart < leftPart) - 1
+
+  list(goodness=goodness, direction=direction)
 }
 
 splitUniqueGini <- function(y, wt, x, ux, maxImpurity, allWeights){
@@ -52,8 +58,8 @@ splitUniqueGini <- function(y, wt, x, ux, maxImpurity, allWeights){
   leftSum <- sum(left)
   rightSum <- sum(right)
 
-  getGiniGoodness(maxImpurity, left, leftSum, right, rightSum, allWeights)
-
+  giniGoodnesInfo <- getGiniGoodness(maxImpurity, left, leftSum, right, rightSum, allWeights)
+  giniGoodnesInfo$goodness
 }
 
 splitGini <- function(y, wt, x, parms, continuous)
@@ -71,6 +77,7 @@ splitGini <- function(y, wt, x, parms, continuous)
     rightSum <- nodeWeightsInfo$weightsSum
 
     goodness <- rep(0, n-1)
+    direction <- rep(0, n-1)
     for (i in 1:(n-1)){
       class <- toString(y[[i]])
 
@@ -80,10 +87,12 @@ splitGini <- function(y, wt, x, parms, continuous)
       leftSum <- leftSum + wt[[i]]
       rightSum <- rightSum - wt[[i]]
 
-      goodness[[i]] <- getGiniGoodness(maxImpurity, left, leftSum, right, rightSum, nodeWeightsInfo$weightsSum)
+      giniGoodnessInfo <- getGiniGoodness(maxImpurity, left, leftSum, right, rightSum, nodeWeightsInfo$weightsSum)
+      goodness[[i]] <- giniGoodnessInfo$goodness
+      direction[[i]] <- giniGoodnessInfo$direction
     }
 
-    list(goodness=goodness, direction=rep(1, n-1))
+    list(goodness=goodness, direction=direction)
   } else {
     ux <- unique(x)
     giniGoodness <- sapply(ux, function(val){
