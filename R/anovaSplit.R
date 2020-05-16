@@ -32,6 +32,11 @@ splitAnova <- function(y, wt, x, parms, continuous)
     lmean <- temp/left.wt
     rmean <- -temp/right.wt
     goodness <- (left.wt*lmean^2 + right.wt*rmean^2)/sum(wt*y^2)
+    rx <- rank(x[-1])
+    if(IQR(goodness) > 0 & IQR(rx) > 0 & length(sort(rx[!duplicated(rx)])) > 3L){
+      fit <- smooth.spline(rx, goodness, df=4)
+      goodness =  predict(fit, rx)$y
+    }
     list(goodness = goodness, direction = sign(lmean))
   } else {
     # Categorical X variable
