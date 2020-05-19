@@ -243,6 +243,45 @@ getGiniGoodness <- function (maxImpurity, leftClassWeights, leftWeights, rightCl
   list(goodness=goodness, direction=direction)
 }
 
+#' Calculates groups using graycode.
+#'
+#' Used for splitting unique attributes.
+#'
+#' @param gray Graycode structure containing graycode vector.
+#'
+#' @return Graycode structure containing next graycode number and updated graycode vector.
+#'
+graycode <- function(gray){
+  gray <- gray$gray
+  len <- length(gray)
+  num <- len
+
+  for (i in 1:(len-1)){
+    if (gray[[i]] == 1){
+      gray[[i]] <- 2
+      num <- i
+      break
+    } else if (gray[[i]] == 2){
+      gray[[i]] <- 1
+    }
+  }
+
+  list(number = num, gray = gray)
+}
+
+#' Returns next number from order vector.
+#'
+#' Used for splitting unique attributes.
+#'
+#' @param num Number structure with order from which to take next number.
+#'
+#' @return Structure containing next number.
+#'
+nextOrderNumber <- function(num){
+  idx <- num$idx
+  list(number = num$order[[idx]], order = num$order, idx = idx + 1)
+}
+
 #' Gini split node function
 #'
 #' Used for calculating split goodness.
@@ -296,28 +335,55 @@ splitGini <- function(y, wt, x, parms, continuous)
 
     categoricalWeightsSum = sapply(categoricalClassWeights, sum)
 
-    categoricalRate <- sapply(categoricalClassWeights, max)
-    categoricalRate <- categoricalRate / categoricalWeightsSum
+    if (parms$numclass == 2){
+      rate <- sapply(categoricalClassWeights, function(weights){
+        weights[[0]]
+      })
 
-    ux <- names(categoricalWeightsSum)
-    ord <- order(categoricalRate, decreasing = TRUE)
-    n <- length(ord)
-
-    categoricalClassWeights <- categoricalClassWeights[ord]
-    categoricalWeightsSum <- categoricalWeightsSum[ord]
-
-    goodness <- rep(1, n-1)
-    for (i in 1:(n-1)){
-      left <- left + categoricalClassWeights[[i]]
-      leftSum <- leftSum + categoricalWeightsSum[[i]]
-
-      right <- right - categoricalClassWeights[[i]]
-      rightSum <- rightSum - categoricalWeightsSum[[i]]
-
-      giniGoodnesInfo <- getGiniGoodness(maxImpurity, left, leftSum, right, rightSum)
-      goodness[[i]] <- giniGoodnesInfo$goodness
+      rate <- rate / categoricalWeightsSum
+      ord <- order(rate)
+      iteratorInfo <- list(order = ord, idx = 1)
+      iterator <- nextOrderNumber
+    } else {
+      iteratorInfo <- list(gray = 1 * categoricalWeightsSum > 0)
+      iterator <- graycode
     }
 
-    list(goodness=goodness, direction = ux[ord])
+    ux <- names(categoricalWeightsSum)
+    n <- length(ux)
+
+    dir <- rep(1, n)
+    bestGoodness <- 0
+    while(TRUE) {
+      iteratorInfo <- iterator(iteratorInfo)
+      i <- iteratorInfo$number
+
+      if (i >= n){
+        break
+      }
+
+      left <- left + dir[[i]] * categoricalClassWeights[[i]]
+      leftSum <- leftSum + dir[[i]] * categoricalWeightsSum[[i]]
+
+      right <- right - dir[[i]] * categoricalClassWeights[[i]]
+      rightSum <- rightSum - dir[[i]] * categoricalWeightsSum[[i]]
+
+      dir[[i]] <- -dir[[i]]
+
+      giniGoodnesInfo <- getGiniGoodness(maxImpurity, left, leftSum, right, rightSum)
+      if (giniGoodnesInfo$goodness > bestGoodness){
+        bestGoodness <- giniGoodnesInfo$goodness
+        bestDir <- -1 * giniGoodnesInfo$direction * dir
+      }
+    }
+
+    direction <- ux[bestDir == -1]
+    i <- length(direction)
+    direction <- c(direction, ux[bestDir == 1])
+
+    goodness <- rep(0, n-1)
+    goodness[[i]] <- bestGoodness
+
+    list(goodness=goodness, direction = direction)
   }
 }
