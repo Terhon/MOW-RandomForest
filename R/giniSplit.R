@@ -212,7 +212,7 @@ evalGini <- function(y, wt, parms) {
   list(label = ret, deviance = min(choiceLoss))
 }
 
-#'  Calculates gini split function.
+#' Calculates gini split function.
 #'
 #' Used for calculating split goodness.
 #'
@@ -243,33 +243,6 @@ getGiniGoodness <- function (maxImpurity, leftClassWeights, leftWeights, rightCl
   list(goodness=goodness, direction=direction)
 }
 
-#' Gini split node function for unique attribute.
-#'
-#' Used for calculating split goodness for unique attribute.
-#'
-#' @param y Target variable to predict
-#' @param wt Tree examples weights
-#' @param x Attribute to split.
-#' @param ux Unique x attribute on which split is performed.
-#' @param parms Optional parameters for the splitting function.
-#' @param maxImpurity Max impurity of node.
-#' @param parms Param structure containing basic information.
-#'
-#' @return Rpart init structure containing basic split information.
-#'
-splitUniqueGini <- function(y, wt, x, ux, maxImpurity, parms){
-  mask <- x == ux
-
-  left <- getClassWeights(y[mask], wt[mask], parms)
-  right <- getClassWeights(y[!mask], wt[!mask], parms)
-
-  leftSum <- sum(left)
-  rightSum <- sum(right)
-
-  giniGoodnesInfo <- getGiniGoodness(maxImpurity, left, leftSum, right, rightSum)
-  giniGoodnesInfo$goodness
-}
-
 #' Gini split node function
 #'
 #' Used for calculating split goodness.
@@ -289,14 +262,14 @@ splitGini <- function(y, wt, x, parms, continuous)
 
   maxImpurity <- giniImpurity(classWeights / weightsSum) * weightsSum
 
+  left <- table(1:parms$numclass) - 1
+  right <- classWeights
+
+  leftSum <- 0
+  rightSum <- weightsSum
+
   if (continuous) {
     n <- length(y)
-
-    left <- table(1:parms$numclass) - 1
-    right <- classWeights
-
-    leftSum <- 0
-    rightSum <- weightsSum
 
     goodness <- rep(1, n-1)
     direction <- rep(1, n-1)
@@ -317,15 +290,34 @@ splitGini <- function(y, wt, x, parms, continuous)
 
     list(goodness=goodness, direction=direction)
   } else {
-    ux <- unique(x)
-    giniGoodness <- sapply(ux, function(val){
-      splitUniqueGini(y, wt, x, val, maxImpurity, parms)
+    categoricalClassWeights = tapply(1:length(y), x, function(idx){
+      getClassWeights(y[idx], wt[idx], parms) * c(parms$aprior)
     })
 
-    ord <- order(giniGoodness)
-    goodness <- giniGoodness[ord]
+    categoricalWeightsSum = sapply(categoricalClassWeights, sum)
+
+    categoricalRate <- sapply(categoricalClassWeights, max)
+    categoricalRate <- categoricalRate / categoricalWeightsSum
+
+    ux <- names(categoricalWeightsSum)
+    ord <- order(categoricalRate, decreasing = TRUE)
     n <- length(ord)
 
-    list(goodness=goodness[-n], direction = ux[ord])
+    categoricalClassWeights <- categoricalClassWeights[ord]
+    categoricalWeightsSum <- categoricalWeightsSum[ord]
+
+    goodness <- rep(1, n-1)
+    for (i in 1:(n-1)){
+      left <- left + categoricalClassWeights[[i]]
+      leftSum <- leftSum + categoricalWeightsSum[[i]]
+
+      right <- right - categoricalClassWeights[[i]]
+      rightSum <- rightSum - categoricalWeightsSum[[i]]
+
+      giniGoodnesInfo <- getGiniGoodness(maxImpurity, left, leftSum, right, rightSum)
+      goodness[[i]] <- giniGoodnesInfo$goodness
+    }
+
+    list(goodness=goodness, direction = ux[ord])
   }
 }
