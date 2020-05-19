@@ -27,6 +27,6 @@ Function is associated with predict method.
 method <- list(eval=evalNode, split=splitNode, init=initTree)
 data <- data.frame(y = numeric(10), a = numeric(10), b = numeric(10))
 forest <- randomForest(y~., data, 2, numberOfTrees=3, method=method)
-prediction <- predict(forest, data)
+predictions <- predict(forest, data)
 
 }

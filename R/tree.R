@@ -20,7 +20,7 @@ nodeAttributesChoiceInfo <- createEnvironment()
 #' @param control A list of options that control details of the rpart algorithm.
 #' @param cost A vector of non-negative costs.
 #'
-#' @return Rpart tree build using wrapped function that selects attributes.
+#' @return Tree structure containing rpart tree build using wrapped function that selects attributes.
 #'
 #' @examples
 #' method <- list(eval=evalNode, split=splitNode, init=initTree)
@@ -28,7 +28,7 @@ nodeAttributesChoiceInfo <- createEnvironment()
 #' t <- tree(y~., data, 2, method=method)
 #'
 #' @export
-tree <- function(formula, data, attributesToChooseCount=floor(sqrt(ncol(data)-1)), bootstrap=FALSE, na.action=na.rpart, method="default", model=FALSE, parms=list(), ...) {
+tree <- function(formula, data, attributesToChooseCount=floor(sqrt(ncol(data)-1)), bootstrap=FALSE, na.action=na.rpart, method="default", model=FALSE, parms=NULL, ...) {
   if (bootstrap){
     bootstrapIndexes <- sample(nrow(data), replace=TRUE)
     data <- data[bootstrapIndexes,]
@@ -42,33 +42,44 @@ tree <- function(formula, data, attributesToChooseCount=floor(sqrt(ncol(data)-1)
 
   nodeAttributesChoice.init(nodeAttributesChoiceInfo, attributesToChooseCount, allAttributesCount)
 
-  if (method == "default") {
-    userModel <- model
+  userModel <- model
 
-    if (is.data.frame(model)) {
-      m <- model
-      model <- FALSE
-    } else {
-      m <- stats::model.frame(formula=formula, data=data, na.action=na.action)
-    }
-
-    Y <- model.response(m)
-    method <- if (is.factor(Y) || is.character(Y)) "class"
-             else "anova"
-
-    model <- userModel
+  if (is.data.frame(model)) {
+    m <- model
+    model <- FALSE
+  } else {
+    m <- stats::model.frame(formula=formula, data=data, na.action=na.action)
   }
 
-  if (method == "anova"){
+  Y <- model.response(m)
+
+  if (method == "default") {
+    method <- if (is.factor(Y) || is.character(Y)) "class"
+             else "anova"
+  }
+
+  model <- userModel
+  ylevels <- NULL
+
+  if (is.list(method)){
+    treeMethod <- "user"
+  } else if (method == "anova"){
     method <- list()
     method$init <- initAnova
     method$eval <- evalAnova
     method$split <- splitAnova
+    treeMethod <- "anova"
   } else if (method == "class") {
+    fy <- as.factor(Y)
+    ylevels <- levels(fy)
+
     method <- list()
     method$init <- initGini
     method$eval <- evalGini
     method$split <- splitGini
+    treeMethod <- "class"
+  } else {
+    stop('Unknown split method')
   }
 
   evalFunction <- partial(treeEvalNode, method$eval)
@@ -77,7 +88,11 @@ tree <- function(formula, data, attributesToChooseCount=floor(sqrt(ncol(data)-1)
 
   rpartArgs$method <- wrappedMethods
   rpartArgs$parms <- parms
-  do.call(rpart, rpartArgs)
+  r <- do.call(rpart, rpartArgs)
+
+  tree <- list(tree = r, method = treeMethod, ylevels = ylevels)
+  class(tree) <- "tree"
+  tree
 }
 
 #' Rpart eval wrapper function for selecting atributes in tree.
@@ -124,4 +139,36 @@ treeSplitNode <- function (splitFunction, y, wt, x, parms, continuous) {
     }
   }
   result
+}
+
+#' Tree predict algorithm.
+#'
+#' Predicts with use of rpart prediction algorithm.
+#'
+#' @param treeObject tree object containing fitted rpart tree
+#' @param data Data table on which to predict
+#' @param type Type of prediction - "class" or "vector" (regression)
+#'
+#' @return rpart tree prediction results
+#'
+#' @examples
+#' method <- list(eval=evalNode, split=splitNode, init=initTree)
+#' data <- data.frame(y = numeric(10), a = numeric(10), b = numeric(10))
+#' forest <- tree(y~., data, 2, method=method)
+#' predictions <- predict(forest, data)
+#'
+#' @export
+predict.tree <- function (treeObject, ...) {
+  rpartTree <- treeObject$tree
+  predictions <- predict(rpartTree, ...)
+
+  if (treeObject$method == "class"){
+    ylevels <- treeObject$ylevels
+
+    predictions <- sapply(predictions, function(pred){
+      ylevels[[pred]]
+    })
+  }
+
+  predictions
 }

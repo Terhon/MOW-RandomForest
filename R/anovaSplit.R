@@ -1,3 +1,14 @@
+#' Anova init split function
+#'
+#' Initializes variables for anova split function
+#'
+#' @param y Target variable to predict
+#' @param offset Data offset
+#' @param wt Tree examples weights
+#' @param parms Optional parameters for the splitting function.
+#'
+#' @return Rpart init structure containing basic algorithm information.
+#'
 initAnova <- function(y, offset, parms, wt) {
   if (is.matrix(y) && ncol(y) > 1)
     stop("Matrix response not allowed")
@@ -13,12 +24,34 @@ initAnova <- function(y, offset, parms, wt) {
   list(y = c(y), parms = NULL, numresp = 1, numy = 1, summary = sfun)
 }
 
+#' Anova eval split function
+#'
+#' Used for printing node information by rpart.
+#'
+#' @param y Target variable to predict
+#' @param wt Tree examples weights
+#' @param parms Optional parameters for the splitting function.
+#'
+#' @return Rpart init structure containing basic node information.
+#'
 evalAnova <- function(y, wt, parms) {
   wmean <- sum(y*wt)/sum(wt)
   rss <- sum(wt*(y-wmean)^2)
   list(label = wmean, deviance = rss)
 }
 
+#' Anova split node function
+#'
+#' Used for calculating split goodness.
+#'
+#' @param y Target variable to predict
+#' @param wt Tree examples weights
+#' @param x Attribute to split.
+#' @param parms Optional parameters for the splitting function.
+#' @param continuous Is x attribute continous flag.
+#'
+#' @return Rpart init structure containing basic split information.
+#'
 splitAnova <- function(y, wt, x, parms, continuous)
 {
   # Center y

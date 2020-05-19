@@ -12,7 +12,7 @@ tree(
   na.action = na.rpart,
   method = "default",
   model = FALSE,
-  parms = list(),
+  parms = NULL,
   ...
 )
 }
@@ -46,7 +46,7 @@ tree(
 \item{cost}{A vector of non-negative costs.}
 }
 \value{
-Rpart tree build using wrapped function that selects attributes.
+Tree structure containing rpart tree build using wrapped function that selects attributes.
 }
 \description{
 Creates a single random forest tree with random selecting attributes before splitting node.

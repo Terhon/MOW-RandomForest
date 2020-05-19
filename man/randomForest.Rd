@@ -8,8 +8,8 @@ randomForest(
   formula,
   data,
   attributesToChooseCount = sqrt(ncol(data) - 1),
-  bootstrap = FALSE,
   numberOfTrees = 1,
+  bootstrap = FALSE,
   na.action = na.rpart,
   method = "default",
   ...
@@ -22,9 +22,9 @@ randomForest(
 
 \item{attributesToChooseCount}{Number of attributes to choose while splitting node - default sqrt(n) where n number of attributes.}
 
-\item{bootstrap}{Use bootstrap method - default=FALSE.}
-
 \item{numberOfTrees}{Number of trees in random forest.}
+
+\item{bootstrap}{Use bootstrap method - default=FALSE.}
 
 \item{na.action}{The default action deletes all observations for which y is missing, but keeps those in which one or more predictors are missing.}
 

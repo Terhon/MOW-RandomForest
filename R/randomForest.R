@@ -29,7 +29,7 @@
 #' forest <- randomForest(y~., data, 2, numberOfTrees=3, method=method)
 #'
 #' @export
-randomForest <- function (formula, data, attributesToChooseCount=sqrt(ncol(data)-1), bootstrap=FALSE, numberOfTrees=1, na.action=na.rpart, method="default", ...) {
+randomForest <- function (formula, data, attributesToChooseCount=sqrt(ncol(data)-1), numberOfTrees=1, bootstrap=FALSE, na.action=na.rpart, method="default", ...) {
   treeArgs <- list(...)
   treeArgs$formula <- formula
   treeArgs$data <- data
@@ -65,20 +65,20 @@ randomForest <- function (formula, data, attributesToChooseCount=sqrt(ncol(data)
 #' method <- list(eval=evalNode, split=splitNode, init=initTree)
 #' data <- data.frame(y = numeric(10), a = numeric(10), b = numeric(10))
 #' forest <- randomForest(y~., data, 2, numberOfTrees=3, method=method)
-#' prediction <- predict(forest, data)
+#' predictions <- predict(forest, data)
 #'
 #' @export
 predict.randomForest <- function (randomForestObject, data, type = c("class", "vector"), ...) {
   match.arg(type)
 
   predictions <- sapply(randomForestObject, function (tree) {
-    predict(tree, data, type = type, ...)
+    predict(tree, data, ...)
   })
 
   if (type == "vector") {
-    result <- apply(predictions, 2, mean)
+    result <- apply(predictions, 1, mean)
   } else if (type == "class") {
-    result <- apply(predictions, 2, function (pred) {
+    result <- apply(predictions, 1, function (pred) {
       uniq <- unique(pred)
       uniq[which.max(tabulate(match(pred, uniq)))]
     })
