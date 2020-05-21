@@ -28,7 +28,7 @@ nodeAttributesChoiceInfo <- createEnvironment()
 #' t <- tree(y~., data, 2, method=method)
 #'
 #' @export
-tree <- function(formula, data, attributesToChooseCount=floor(sqrt(ncol(data)-1)), bootstrap=FALSE, na.action=na.rpart, method="default", model=FALSE, parms=NULL, ...) {
+tree <- function(formula, data, attributesToChooseCount=floor(sqrt(ncol(data)-1)), bootstrap=FALSE, na.action=na.rpart, method="default", model=FALSE, parms=NULL, control=rpart.control(), ...) {
   if (bootstrap){
     bootstrapIndexes <- sample(nrow(data), replace=TRUE)
     data <- data[bootstrapIndexes,]
@@ -73,6 +73,12 @@ tree <- function(formula, data, attributesToChooseCount=floor(sqrt(ncol(data)-1)
     fy <- as.factor(Y)
     ylevels <- levels(fy)
 
+    if (is.null(parms)){
+      parms <- list()
+    }
+
+    parms$minbucket <- control$minbucket
+
     method <- list()
     method$init <- initGini
     method$eval <- evalGini
@@ -88,6 +94,7 @@ tree <- function(formula, data, attributesToChooseCount=floor(sqrt(ncol(data)-1)
 
   rpartArgs$method <- wrappedMethods
   rpartArgs$parms <- parms
+  rpartArgs$control <- control
   r <- do.call(rpart, rpartArgs)
 
   tree <- list(tree = r, method = treeMethod, ylevels = ylevels)
@@ -134,8 +141,8 @@ treeSplitNode <- function (splitFunction, y, wt, x, parms, continuous) {
       n <- length(y) - 1
       result <- list(goodness=rep(0, n), direction=rep(1, n))
     } else {
-      n <- length(unique(x)) - 1
-      result <- list(goodness=rep(0, n), direction=rep(1, n))
+      n <- length(unique(x))
+      result <- list(goodness=rep(0, n-1), direction=rep(1, n))
     }
   }
   result

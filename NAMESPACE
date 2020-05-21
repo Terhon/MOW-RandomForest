@@ -2,5 +2,6 @@
 
 S3method(predict,randomForest)
 S3method(predict,tree)
+export(crossValidation)
 export(randomForest)
 export(tree)

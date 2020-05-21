@@ -13,6 +13,7 @@ tree(
   method = "default",
   model = FALSE,
   parms = NULL,
+  control = rpart.control(),
   ...
 )
 }
@@ -33,6 +34,8 @@ tree(
 
 \item{parms}{Optional parameters for the splitting function.}
 
+\item{control}{A list of options that control details of the rpart algorithm.}
+
 \item{weights}{Tree examples weights}
 
 \item{subset}{Expression saying that only a subset of the rows of the data should be used in the fit.}
@@ -40,8 +43,6 @@ tree(
 \item{x}{Keep a copy of the x matrix in the result.}
 
 \item{y}{Keep a copy of the dependent variable in the result.}
-
-\item{control}{A list of options that control details of the rpart algorithm.}
 
 \item{cost}{A vector of non-negative costs.}
 }

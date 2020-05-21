@@ -46,14 +46,16 @@ initGini <- function(y, offset, parms, wt) {
   if (missing(parms) || is.null(parms))
     parms <- list(prior = freq,
                   loss = matrix(rep(1, numclass^2) - diag(numclass),
-                                numclass))
+                                numclass), minbucket = 0)
   else if (is.list(parms)) {
     if (is.null(names(parms))) stop("The parms list must have names")
-    temp <- pmatch(names(parms), c("prior", "loss"), 0L)
+    temp <- pmatch(names(parms), c("prior", "loss", "minbucket"), 0L)
     if (any(temp == 0L))
       stop(gettextf("'parms' component not matched: %s",
                     names(parms)[temp == 0L]), domain = NA)
-    names(parms) <- c("prior", "loss")[temp]
+    names(parms) <- c("prior", "loss", "minbucket")[temp]
+
+    if (is.null(parms$minbucket)) parms$minbucket <- 0
 
     if (is.null(parms$prior)) temp <- c(freq)
     else {
@@ -77,12 +79,11 @@ initGini <- function(y, offset, parms, wt) {
         stop("Loss matrix has a row of zeros")
     }
 
-    parms <- list(prior = temp, loss = matrix(temp2, numclass))
+    parms <- list(prior = temp, loss = matrix(temp2, numclass), minbucket = parms$minbucket)
   }
   else stop("Parameter argument must be a list")
 
   parms$numclass <- numclass
-  #parms$ylevels <- ylevels
 
   parms$aprior <- rowSums(parms$loss * c(parms$prior))
   temp <- sum(parms$aprior)
@@ -208,7 +209,6 @@ evalGini <- function(y, wt, parms) {
   counts <- as.vector(counts)
 
   ret <- c(lab, counts, classFreq, prob)
-
   list(label = ret, deviance = min(choiceLoss))
 }
 
@@ -329,15 +329,20 @@ splitGini <- function(y, wt, x, parms, continuous)
 
     list(goodness=goodness, direction=direction)
   } else {
-    categoricalClassWeights = tapply(1:length(y), x, function(idx){
+    leftCount <- 0
+    rightCount <- length(y)
+
+    categoricalClassCounts <- tapply(1:length(y), x, length)
+
+    categoricalClassWeights <- tapply(1:length(y), x, function(idx){
       getClassWeights(y[idx], wt[idx], parms) * c(parms$aprior)
     })
 
-    categoricalWeightsSum = sapply(categoricalClassWeights, sum)
+    categoricalWeightsSum <- sapply(categoricalClassWeights, sum)
 
     if (parms$numclass == 2){
       rate <- sapply(categoricalClassWeights, function(weights){
-        weights[[0]]
+        weights[[1]]
       })
 
       rate <- rate / categoricalWeightsSum
@@ -364,14 +369,16 @@ splitGini <- function(y, wt, x, parms, continuous)
 
       left <- left + dir[[i]] * categoricalClassWeights[[i]]
       leftSum <- leftSum + dir[[i]] * categoricalWeightsSum[[i]]
+      leftCount <- leftCount + dir[[i]] * categoricalClassCounts[[i]]
 
       right <- right - dir[[i]] * categoricalClassWeights[[i]]
       rightSum <- rightSum - dir[[i]] * categoricalWeightsSum[[i]]
+      rightCount <- rightCount - dir[[i]] * categoricalClassCounts[[i]]
 
       dir[[i]] <- -dir[[i]]
 
       giniGoodnesInfo <- getGiniGoodness(maxImpurity, left, leftSum, right, rightSum)
-      if (giniGoodnesInfo$goodness > bestGoodness){
+      if (giniGoodnesInfo$goodness > bestGoodness && leftCount >= parms$minbucket && rightCount >= parms$minbucket){
         bestGoodness <- giniGoodnesInfo$goodness
         bestDir <- -1 * giniGoodnesInfo$direction * dir
       }
