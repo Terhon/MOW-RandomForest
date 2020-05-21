@@ -12,5 +12,11 @@ LazyData: true
 Depends:
     R (>= 3.6.3),
     rpart (>= 4.1-15),
-    pryr (>= 0.1.4)
+    pryr (>= 0.1.4),
+    stats (>= 3.6.3),
+Imports:
+    graphics,
+    MLmetrics,
+    caret,
+    doParallel
 RoxygenNote: 7.1.0

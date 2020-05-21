@@ -1,3 +1,8 @@
+#' @importFrom graphics text
+#' @importFrom stats IQR model.response predict smooth.spline
+#' @import rpart
+#' @importFrom pryr partial
+
 nodeAttributesChoiceInfo <- createEnvironment()
 
 #' Creates a single random forest tree.

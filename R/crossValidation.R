@@ -1,3 +1,5 @@
+#' @importFrom MLmetrics RMSE
+
 #' Cross validation function
 #'
 #' @examples
