@@ -1,4 +1,6 @@
-#' @examples 
+#' Cross validation function
+#'
+#' @examples
 #' crossValidation(5, quality~., 'quality', winequality.white, 30, TRUE)
 #'
 #' @export
