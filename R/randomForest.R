@@ -86,3 +86,33 @@ predict.randomForest <- function (randomForestObject, data, type = c("class", "v
 
   result
 }
+
+#' Random forest summary.
+#'
+#' Shows rpart summary for random forest.
+#'
+#' @param treeObject Random tree object containing fitted trees structure.
+#'
+#' @return rpart random trees summary
+#'
+#' @export
+summary.randomForest <- function (randomForestObject, ...) {
+  for (treeObject in randomForestObject){
+    summary(treeObject$tree, ...)
+  }
+}
+
+#' Tree text.
+#'
+#' Shows rpart text plot for tree.
+#'
+#' @param treeObject Random tree object containing fitted trees structure.
+#'
+#' @return rpart random trees text
+#'
+#' @export
+text.randomForest <- function (randomForestObject, ...) {
+  for (treeObject in randomForestObject){
+    text(treeObject$tree, ...)
+  }
+}

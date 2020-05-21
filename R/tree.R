@@ -152,7 +152,7 @@ treeSplitNode <- function (splitFunction, y, wt, x, parms, continuous) {
 #'
 #' Predicts with use of rpart prediction algorithm.
 #'
-#' @param treeObject tree object containing fitted rpart tree
+#' @param treeObject Tree object containing fitted rpart tree
 #' @param data Data table on which to predict
 #' @param type Type of prediction - "class" or "vector" (regression)
 #'
@@ -179,3 +179,30 @@ predict.tree <- function (treeObject, ...) {
 
   predictions
 }
+
+#' Tree summary.
+#'
+#' Shows rpart summary for tree.
+#'
+#' @param treeObject Tree object containing fitted tree structure
+#'
+#' @return rpart tree summary
+#'
+#' @export
+summary.tree <- function (treeObject, ...) {
+  summary(treeObject$tree, ...)
+}
+
+#' Tree text.
+#'
+#' Shows rpart text plot for tree.
+#'
+#' @param treeObject Tree object containing fitted tree structure
+#'
+#' @return rpart tree text
+#'
+#' @export
+text.tree <- function (treeObject, ...) {
+  text(treeObject$tree, ...)
+}
+

@@ -7,7 +7,7 @@
 \method{predict}{tree}(treeObject, ...)
 }
 \arguments{
-\item{treeObject}{tree object containing fitted rpart tree}
+\item{treeObject}{Tree object containing fitted rpart tree}
 
 \item{data}{Data table on which to predict}
 
