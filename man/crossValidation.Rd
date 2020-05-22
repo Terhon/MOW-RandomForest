@@ -2,12 +2,23 @@
 % Please edit documentation in R/crossValidation.R
 \name{crossValidation}
 \alias{crossValidation}
-\title{Cross validation function}
+\title{Cross validation prediction test function}
 \usage{
-crossValidation(k, formula, attr, data, numberOfTrees, bootstrap)
+crossValidation(
+  k,
+  formula,
+  targetAttr,
+  data,
+  numberOfAttributes,
+  numberOfTrees,
+  bootstrap,
+  method = "anova",
+  predictionType = "vector",
+  metric = RMSE
+)
 }
 \description{
-Cross validation function
+Cross validation prediction test function
 }
 \examples{
 crossValidation(5, quality~., 'quality', winequality.white, 30, TRUE)

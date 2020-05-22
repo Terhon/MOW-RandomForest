@@ -100,5 +100,5 @@ aaa <- apply(prediction, 1, function (pred) {
   uniq[which.max(tabulate(match(pred, uniq)))]
 })
 
-crossValidation(2, quality~., 'quality', winequality.white,1, TRUE)
+crossValidation(2, quality~., 'quality', winequality.white, floor(sqrt(11)), 1, TRUE)
 }
