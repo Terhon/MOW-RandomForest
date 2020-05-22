@@ -14,7 +14,9 @@ crossValidation(
   bootstrap,
   method = "anova",
   predictionType = "vector",
-  metric = RMSE
+  metric = RMSE,
+  collect = mean,
+  changeFactor = FALSE
 )
 }
 \description{
