@@ -1,3 +1,4 @@
+test <- function(){
 library(pryr)
 library(rpart)
 library(doParallel)
@@ -100,3 +101,4 @@ aaa <- apply(prediction, 1, function (pred) {
 })
 
 crossValidation(2, quality~., 'quality', winequality.white,1, TRUE)
+}

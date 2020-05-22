@@ -1,12 +1,10 @@
-#' @importFrom MLmetrics RMSE
-
 #' Cross validation function
 #'
 #' @examples
 #' crossValidation(5, quality~., 'quality', winequality.white, 30, TRUE)
 #'
 #' @export
-crossValidation <- function (k, formula, attr, data, numberOfTrees, bootstrap) {
+crossValidation <- function(k, formula, attr, data, numberOfTrees, bootstrap) {
   size <- nrow(data)/k
   subsets <- list()
   for(i in 1:(k-1)) {
