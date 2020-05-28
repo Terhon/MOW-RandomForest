@@ -80,6 +80,7 @@ plot(type = "b", cpX, resultsCrossTreesWhiteWineComplex, xlab = "Minimal increas
 plot(type = "b", seq(0,50,5), resultsCrossTreesWhiteWineMinSplit, xlab = "Minimal observations for attempting split", ylab = "RMSE")
 plot(type = "b", seq(0,30,3), resultsCrossTreesWhiteWineMinBucket, xlab = "Minimal observations in terminal node", ylab = "RMSE")
 
+#Packages comparison
 attributeNumber <- 6
 treeNumber <- 4
 control <- rpart.control(minsplit=50, minbucket=24, cp=10^-7)
@@ -91,7 +92,7 @@ resultsCrossTreesWhiteWineBootstrapRpartSingle <- crossValidation(5, quality~., 
                   bootstrap = TRUE, control = control, method="anova", predictionType = "vector",
                   metric = RMSE, collect = mean, changeFactor = FALSE)
 
-resultsCrossTreesWhiteWineRpartSingleNoBootstrap <- crossValidation(5, quality~., "quality", winequality.white, numberOfAttributes=11, numberOfTrees=1,
+resultsCrossTreesWhiteWineRpartSingleNoAttrBootstrap <- crossValidation(5, quality~., "quality", winequality.white, numberOfAttributes=11, numberOfTrees=1,
                   bootstrap = FALSE, control = control, method="anova", predictionType = "vector",
                   metric = RMSE, collect = mean, changeFactor = FALSE)
 
@@ -186,6 +187,7 @@ plot(type = "b",(foreach(i=1:7, .combine = c) %do% {1/10^i}), resultsCrossTreesA
 plot(type = "b", seq(0,50,5), resultsCrossTreesAppliancesMinSplit, xlab = "Minimal observations for attempting split", ylab = "RMSE")
 plot(type = "b", seq(0,30,3), resultsCrossTreesAppliancesMinBucket, xlab = "Minimal observations in terminal node", ylab = "RMSE")
 
+#Packages comparison
 attributeNumber <- 10
 treeNumber <- 4
 control <- rpart.control(minsplit=25, minbucket=15, cp=10^-7)
@@ -197,7 +199,7 @@ resultsCrossTreesAppliancesBootstrapRpartSingle <- crossValidation(5, Appliances
                 bootstrap = TRUE, control = control, method="anova", predictionType = "vector",
                 metric = RMSE, collect = mean, changeFactor = FALSE)
 
-resultsCrossTreesAppliancesRpartSingleNoBootstrap <- crossValidation(5, Appliances~., "Appliances", energydata_complete, numberOfAttributes=11, numberOfTrees=1,
+resultsCrossTreesAppliancesRpartSingleNoAttrBootstrap <- crossValidation(5, Appliances~., "Appliances", energydata_complete, numberOfAttributes=11, numberOfTrees=1,
                 bootstrap = FALSE, control = control, method="anova", predictionType = "vector",
                 metric = RMSE, collect = mean, changeFactor = FALSE)
 
@@ -213,11 +215,11 @@ resultsCrossRandomForestAppliancesBootstrap <- crossValidation(5, Appliances~., 
                 bootstrap = TRUE, control = control, method="anova", predictionType = "vector",
                 metric = RMSE, collect = mean, changeFactor = FALSE, predictor = predictorRandomForest)
 
-resultsCrossTreesAppliancesBootstrapFull <- crossValidation(5, Appliances~., "Appliances", energydata_complete, numberOfAttributes=attributeNumber, numberOfTrees=500,
+resultsCrossTreesAppliancesBootstrapFull <- crossValidation(5, Appliances~., "Appliances", energydata_complete, numberOfAttributes=attributeNumber, numberOfTrees=100,
                 bootstrap = TRUE, control = control, method="anova", predictionType = "vector",
                 metric = RMSE, collect = mean, changeFactor = FALSE)
 
-resultsCrossRandomForestAppliancesBootstrapFull <- crossValidation(5, Appliances~., "Appliances", energydata_complete, numberOfTrees=500,
+resultsCrossRandomForestAppliancesBootstrapFull <- crossValidation(5, Appliances~., "Appliances", energydata_complete, numberOfTrees=100,
                 bootstrap = TRUE, control = control, method="anova", predictionType = "vector",
                 metric = RMSE, collect = mean, changeFactor = FALSE, predictor = predictorRandomForest)
 

@@ -89,6 +89,7 @@ plot(type="b", cpX, foreach(i=1:7, .combine = c) %do% {mean(resultsCrossTreesLet
 plot(type="b",seq(0,50,5), foreach(i=1:11, .combine = c) %do% {mean(resultsCrossTreesLettersMinSplit[[i]]$recall)}, xlab = "Minimal observations for attempting split", ylab = "Recall")
 plot(type="b",seq(0,30,3), foreach(i=1:11, .combine = c) %do% {mean(resultsCrossTreesLettersMinBucket[[i]]$recall)}, xlab = "Minimal observations in terminal node", ylab = "Recall")
 
+#Packages comparison
 treeNumber <- 6
 attributeNumber <- 7
 control = rpart.control(minsplit = 50, minbucket = 30, cp=10^-7)
@@ -195,6 +196,7 @@ plot(type="b", cpX, foreach(i=1:7, .combine = c) %do% {mean(resultsCrossTreesEle
 plot(type="b",seq(0,50,5), foreach(i=1:11, .combine = c) %do% {mean(resultsCrossTreesElectricalGridMinSplit[[i]]$recall)}, xlab = "Minimal observations for attempting split", ylab = "Recall")
 plot(type="b",seq(0,30,3), foreach(i=1:11, .combine = c) %do% {mean(resultsCrossTreesElectricalGridMinBucket[[i]]$recall)}, xlab = "Minimal observations in terminal node", ylab = "Recall")
 
+#Packages comparison
 treeNumber <- 18
 attributeNumber <- 5
 control = rpart.control(minsplit=0, minbucket=0)
