@@ -18,5 +18,7 @@ Imports:
     graphics,
     MLmetrics,
     caret,
-    doParallel
+    doParallel,
+    BBmisc,
+    dplyr
 RoxygenNote: 7.1.0

@@ -11,12 +11,14 @@ crossValidation(
   data,
   numberOfAttributes,
   numberOfTrees,
-  bootstrap,
+  bootstrap = TRUE,
   method = "anova",
   predictionType = "vector",
   metric = RMSE,
   collect = mean,
-  changeFactor = FALSE
+  changeFactor = FALSE,
+  predictor = MOWRandomForest::randomForest,
+  ...
 )
 }
 \description{
