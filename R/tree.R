@@ -13,7 +13,7 @@ nodeAttributesChoiceInfo <- createEnvironment()
 #' @param formula Tree formula
 #' @param data Data table
 #' @param attributesToChooseCount Number of attributes to choose while splitting node - default sqrt(n) where n number of attributes.
-#' @param bootstrap Use bootstrap method - default=FALSE.
+#' @param bootstrap Use bootstrap method - default=TRUE.
 #' @param weights Tree examples weights
 #' @param subset Expression saying that only a subset of the rows of the data should be used in the fit.
 #' @param na.action The default action deletes all observations for which y is missing, but keeps those in which one or more predictors are missing.
@@ -33,7 +33,7 @@ nodeAttributesChoiceInfo <- createEnvironment()
 #' t <- tree(y~., data, 2, method=method)
 #'
 #' @export
-tree <- function(formula, data, attributesToChooseCount=floor(sqrt(ncol(data)-1)), bootstrap=FALSE, na.action=na.rpart, method="default", model=FALSE, parms=NULL, control=rpart.control(), ...) {
+tree <- function(formula, data, attributesToChooseCount=floor(sqrt(ncol(data)-1)), bootstrap=TRUE, na.action=na.rpart, method="default", model=FALSE, parms=NULL, control=rpart.control(), ...) {
   if (bootstrap){
     bootstrapIndexes <- sample(nrow(data), replace=TRUE)
     data <- data[bootstrapIndexes,]

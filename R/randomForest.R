@@ -8,8 +8,8 @@
 #' @param formula Random forest formula
 #' @param data Data table
 #' @param attributesToChooseCount Number of attributes to choose while splitting node - default sqrt(n) where n number of attributes.
-#' @param bootstrap Use bootstrap method - default=FALSE.
-#' @param numberOfTrees Number of trees in random forest.
+#' @param bootstrap Use bootstrap method - default=TRUE.
+#' @param numberOfTrees Number of trees in random forest (default=10).
 #' @param weights Tree examples weights
 #' @param subset Expression saying that only a subset of the rows of the data should be used in the fit.
 #' @param na.action The default action deletes all observations for which y is missing, but keeps those in which one or more predictors are missing.
@@ -29,7 +29,7 @@
 #' forest <- randomForest(y~., data, 2, numberOfTrees=3, method=method)
 #'
 #' @export
-randomForest <- function (formula, data, attributesToChooseCount=sqrt(ncol(data)-1), numberOfTrees=1, bootstrap=FALSE, na.action=na.rpart, method="default", ...) {
+randomForest <- function (formula, data, attributesToChooseCount=sqrt(ncol(data)-1), numberOfTrees=10, bootstrap=TRUE, na.action=na.rpart, method="default", ...) {
   treeArgs <- list(...)
   treeArgs$formula <- formula
   treeArgs$data <- data
