@@ -146,31 +146,34 @@ resultsCrossTreesAppliancesAttrNoBootstrap <- foreach(i=1:1, .combine = c, .mult
 }
 
 #complexity
+cpX <- 7:-1:1
+cpX <- 10^-cpX
+
 attributeNumber <- 6
-resultsCrossTreesAppliancesComplex <- foreach(i=1:7, .combine = c, .multicombine = TRUE, .packages = c(loadedNamespaces())) %dopar% {
+resultsCrossTreesAppliancesComplex <- foreach(i=cpX, .combine = c, .multicombine = TRUE, .packages = c(loadedNamespaces())) %dopar% {
   crossValidation(5, Appliances~., "Appliances", energydata_complete, numberOfAttributes=attributeNumber, numberOfTrees=treeNumber,
                   bootstrap = TRUE, method="anova", predictionType = "vector",
-                  metric = RMSE, collect = mean, changeFactor = FALSE, control = rpart.control(cp = i/10^i))
+                  metric = RMSE, collect = mean, changeFactor = FALSE, control = rpart.control(cp = i))
 }
 
-resultsCrossTreesAppliancesComplexNoBootstrap <- foreach(i=1:7, .combine = c, .multicombine = TRUE, .packages = c(loadedNamespaces())) %dopar% {
+resultsCrossTreesAppliancesComplexNoBootstrap <- foreach(i=cpX, .combine = c, .multicombine = TRUE, .packages = c(loadedNamespaces())) %dopar% {
   crossValidation(5, Appliances~., "Appliances", energydata_complete, numberOfAttributes=attributeNumber, numberOfTrees=treeNumber,
                   bootstrap = FALSE, method="anova", predictionType = "vector",
-                  metric = RMSE, collect = mean, changeFactor = FALSE, control = rpart.control(cp = i/10^i))
+                  metric = RMSE, collect = mean, changeFactor = FALSE, control = rpart.control(cp = i))
 }
 
 #minsplit
 resultsCrossTreesAppliancesMinSplit <- foreach(i=seq(0,50,5), .combine = c, .multicombine = TRUE, .packages = c(loadedNamespaces())) %dopar% {
   crossValidation(5, Appliances~., "Appliances", energydata_complete, numberOfAttributes=attributeNumber, numberOfTrees=treeNumber,
                   bootstrap = TRUE, method="anova", predictionType = "vector",
-                  metric = RMSE, collect = mean, changeFactor = FALSE, control = rpart.control(minsplit =  i + 1))
+                  metric = RMSE, collect = mean, changeFactor = FALSE, control = rpart.control(minsplit =  i))
 }
 
 #minbucket
 resultsCrossTreesAppliancesMinBucket <- foreach(i=seq(0,30,3), .combine = c, .multicombine = TRUE, .packages = c(loadedNamespaces())) %dopar% {
   crossValidation(5, Appliances~., "Appliances", energydata_complete, numberOfAttributes=attributeNumber, numberOfTrees=treeNumber,
                   bootstrap = TRUE, method="anova", predictionType = "vector",
-                  metric = RMSE, collect = mean, changeFactor = FALSE, control = rpart.control(minbucket =  i + 1))
+                  metric = RMSE, collect = mean, changeFactor = FALSE, control = rpart.control(minbucket =  i))
 }
 
 par(mfrow=c(3,2))

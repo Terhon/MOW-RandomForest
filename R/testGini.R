@@ -143,6 +143,9 @@ resultsCrossTreesElectricalGridAttr <- foreach(i=1:11, .combine = c, .multicombi
 }
 
 #complexity
+cpX <- 7:-1:1
+cpX <- 10^-cpX
+
 attributeNumber <- 5
 resultsCrossTreesElectricalGridComplex <- foreach(i=cpX, .combine = c, .multicombine = TRUE, .packages = c(loadedNamespaces())) %dopar% {
   crossValidation(5, stabf~., "stabf", letter.recognition, numberOfAttributes=attributeNumber, numberOfTrees=treeNumber,
@@ -156,7 +159,7 @@ resultsCrossTreesElectricalGridMinSplit <- foreach(i=seq(0,50,5), .combine = c, 
   crossValidation(5, stabf~., "stabf", letter.recognition, numberOfAttributes=attributeNumber, numberOfTrees=treeNumber,
                   bootstrap = TRUE, method="class", predictionType = "class",
                   metric = getConfusionMatrixMetricsClass, collect = collectCrossValidationClass, changeFactor = TRUE,
-                  control = rpart.control(minsplit =  i + 1))
+                  control = rpart.control(minsplit =  i))
 }
 
 #minBucket
@@ -164,7 +167,7 @@ resultsCrossTreesElectricalGridMinBucket <- foreach(i=seq(0,30,3), .combine = c,
   crossValidation(5, stabf~., "stabf", letter.recognition, numberOfAttributes=attributeNumber, numberOfTrees=treeNumber,
                   bootstrap = TRUE, method="class", predictionType = "class",
                   metric = getConfusionMatrixMetricsClass, collect = collectCrossValidationClass, changeFactor = TRUE,
-                  control = rpart.control(minbucket =  i + 1))
+                  control = rpart.control(minbucket =  i))
 }
 
 
