@@ -3,6 +3,7 @@ library(rpart)
 library(doParallel)
 library(caret)
 library(dplyr)
+library(BBmisc)
 
 registerDoParallel(cores = 5)
 
@@ -66,6 +67,10 @@ resEnergy <- foreach(i=3:3, .combine = c, .multicombine = TRUE, .packages = c(lo
   prediction <- predict(forest, energydata_complete[2:29], "vector")
   RMSE(prediction, energydata_complete[2:29]$Appliances)
 }
+energyNormalized <- energydata_complete
+energyNormalized$Appliances <- normalize(energyNormalized$Appliances)
+RMSE(predict(rpart(Appliances~., energyNormalized, method = "anova")), energyNormalized$Appliances)
+
 
 resEnergyAttr <- foreach(i=1:10, .combine = c, .multicombine = TRUE, .packages = c(loadedNamespaces())) %dopar% {
   forest <- MOWRandomForest::randomForest(quality~.,
@@ -101,101 +106,4 @@ aaa <- apply(prediction, 1, function (pred) {
 })
 
 crossValidation(5, quality~., 'quality', winequality.white, floor(sqrt(11)), 1, TRUE)
-
-#tests with validation------------------------
-#letters
-#tree number
-resultsCrossTreesLetters <- foreach(i=1:10, .combine = c, .multicombine = TRUE, .packages = c(loadedNamespaces())) %dopar% {
-  crossValidation(5, V1~., "V1", letter.recognition, numberOfAttributes=floor(sqrt(16)), numberOfTrees=i,
-                  bootstrap = TRUE, method="class", predictionType = "class",
-                  metric = getConfusionMatrixMetricsClass, collect = collectCrossValidationClass, changeFactor = TRUE)
-}
-
-resultsCrossTreesLettersNoBootstrap <- foreach(i=1:10, .combine = c, .multicombine = TRUE, .packages = c(loadedNamespaces())) %dopar% {
-  crossValidation(5, V1~., "V1", letter.recognition, numberOfAttributes=floor(sqrt(16)), numberOfTrees=i,
-                  bootstrap = FALSE, method="class", predictionType = "class",
-                  metric = getConfusionMatrixMetricsClass, collect = collectCrossValidationClass, changeFactor = TRUE)
-}
-
-#attributes
-treeNumber <- 6
-resultsCrossTreesLettersAttr <- foreach(i=1:6, .combine = c, .multicombine = TRUE, .packages = c(loadedNamespaces())) %dopar% {
-  crossValidation(5, V1~., "V1", letter.recognition, numberOfAttributes=i, numberOfTrees=treeNumber,
-                  bootstrap = TRUE, method="class", predictionType = "class",
-                  metric = getConfusionMatrixMetricsClass, collect = collectCrossValidationClass, changeFactor = TRUE)
-}
-
-resultsCrossTreesLettersAttrNoBootstrap <- foreach(i=1:6, .combine = c, .multicombine = TRUE, .packages = c(loadedNamespaces())) %dopar% {
-  crossValidation(5, V1~., "V1", letter.recognition, numberOfAttributes=i, numberOfTrees=treeNumber,
-                  bootstrap = FALSE, method="class", predictionType = "class",
-                  metric = getConfusionMatrixMetricsClass, collect = collectCrossValidationClass, changeFactor = TRUE)
-}
-
-#white wine--------------------------------
-#trees
-resultsCrossTreesWhiteWine <- foreach(i=1:20, .combine = c, .multicombine = TRUE, .packages = c(loadedNamespaces())) %dopar% {
-  crossValidation(5, quality~., "quality", winequality.white, numberOfAttributes=floor(sqrt(12)), numberOfTrees=i,
-                  bootstrap = TRUE, method="anova", predictionType = "vector",
-                  metric = RMSE, collect = mean, changeFactor = FALSE)
-}
-
-resultsCrossTreesWhiteWineNoBootstrap <- foreach(i=1:20, .combine = c, .multicombine = TRUE, .packages = c(loadedNamespaces())) %dopar% {
-  crossValidation(5, quality~., "quality", winequality.white, numberOfAttributes=floor(sqrt(12)), numberOfTrees=i,
-                  bootstrap = FALSE, method="anova", predictionType = "vector",
-                  metric = RMSE, collect = mean, changeFactor = FALSE)
-}
-
-#attributes
-treeNumber <- 4
-resultsCrossTreesWhiteWineAttr <- foreach(i=1:11, .combine = c, .multicombine = TRUE, .packages = c(loadedNamespaces())) %dopar% {
-  crossValidation(5, quality~., "quality", winequality.white, numberOfAttributes=i, numberOfTrees=treeNumber,
-                  bootstrap = TRUE, method="anova", predictionType = "vector",
-                  metric = RMSE, collect = mean, changeFactor = FALSE)
-}
-
-resultsCrossTreesWhiteWineAttrNoBootstrap <- foreach(i=1:11, .combine = c, .multicombine = TRUE, .packages = c(loadedNamespaces())) %dopar% {
-  crossValidation(5, quality~., "quality", winequality.white, numberOfAttributes=i, numberOfTrees=treeNumber,
-                  bootstrap = TRUE, method="anova", predictionType = "vector",
-                  metric = RMSE, collect = mean, changeFactor = FALSE)
-}
-
-par(mfrow=c(2,2))
-plot(1:20, resultsCrossTreesWhiteWine, xlab = "Number of trees", ylab = "Root Mean Squared Error")
-plot(1:20, resultsCrossTreesWhiteWineNoBootstrap, xlab = "Number of trees", ylab = "Root Mean Squared Error")
-plot(1:11, resultsCrossTreesWhiteWineAttr, xlab = "Number of attributes", ylab = "Root Mean Squared Error")
-plot(1:11, resultsCrossTreesWhiteWineAttrNoBootstrap, xlab = "Number of attributes", ylab = "Root Mean Squared Error")
-
-#appliances--------------------------
-#trees
-resultsCrossTreesAppliances <- foreach(i=1:20, .combine = c, .multicombine = TRUE, .packages = c(loadedNamespaces())) %dopar% {
-  crossValidation(5, Appliances~., "Appliances", energydata_complete, numberOfAttributes=floor(sqrt(29)), numberOfTrees=i,
-                  bootstrap = TRUE, method="anova", predictionType = "vector",
-                  metric = RMSE, collect = mean, changeFactor = FALSE)
-}
-
-resultsCrossTreesAppliancesNoBootstrap <- foreach(i=1:20, .combine = c, .multicombine = TRUE, .packages = c(loadedNamespaces())) %dopar% {
-  crossValidation(5, Appliances~., "Appliances", energydata_complete, numberOfAttributes=floor(sqrt(29)), numberOfTrees=i,
-                  bootstrap = FALSE, method="anova", predictionType = "vector",
-                  metric = RMSE, collect = mean, changeFactor = FALSE)
-}
-
-#attributes
-treeNumber <- 4
-resultsCrossTreesAppliancesAttr <- foreach(i=1:20, .combine = c, .multicombine = TRUE, .packages = c(loadedNamespaces())) %dopar% {
-  crossValidation(5, Appliances~., "Appliances", energydata_complete, numberOfAttributes=i, numberOfTrees=treeNumber,
-                  bootstrap = TRUE, method="anova", predictionType = "vector",
-                  metric = RMSE, collect = mean, changeFactor = FALSE)
-}
-
-resultsCrossTreesAppliancesAttrNoBootstrap <- foreach(i=1:20, .combine = c, .multicombine = TRUE, .packages = c(loadedNamespaces())) %dopar% {
-  crossValidation(5, Appliances~., "Appliances", energydata_complete, numberOfAttributes=i, numberOfTrees=treeNumber,
-                  bootstrap = FALSE, method="anova", predictionType = "vector",
-                  metric = RMSE, collect = mean, changeFactor = FALSE)
-}
-
-par(mfrow=c(2,2))
-plot(1:20, resultsCrossTreesAppliances, xlab = "Number of trees", ylab = "Root Mean Squared Error")
-plot(1:20, resultsCrossTreesAppliancesNoBootstrap, xlab = "Number of trees", ylab = "Root Mean Squared Error")
-plot(1:20, resultsCrossTreesAppliancesAttr, xlab = "Number of attributes", ylab = "Root Mean Squared Error")
-plot(1:20, resultsCrossTreesAppliancesAttrNoBootstrap, xlab = "Number of attributes", ylab = "Root Mean Squared Error")
 

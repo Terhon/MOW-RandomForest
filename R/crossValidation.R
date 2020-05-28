@@ -4,7 +4,7 @@
 #' crossValidation(5, quality~., 'quality', winequality.white, 30, TRUE)
 #'
 #' @export
-crossValidation <- function(k, formula, targetAttr, data, numberOfAttributes, numberOfTrees, bootstrap, method = "anova", predictionType = "vector", metric = RMSE, collect = mean, changeFactor = FALSE) {
+crossValidation <- function(k, formula, targetAttr, data, numberOfAttributes, numberOfTrees, bootstrap, method = "anova", predictionType = "vector", metric = RMSE, collect = mean, changeFactor = FALSE, ...) {
   lev <- levels(data[[targetAttr]])
 
   size <- nrow(data)/k
@@ -19,8 +19,8 @@ crossValidation <- function(k, formula, targetAttr, data, numberOfAttributes, nu
 
   results <- foreach(i=1:k, .combine = c, .multicombine = TRUE, .packages = c(loadedNamespaces())) %dopar% {
     trainSet <- bind_rows(subsets[(1:k)[-i]])
-    forest <- MOWRandomForest::randomForest(formula, trainSet, attributesToChooseCount = numberOfAttributes, numberOfTrees = numberOfTrees, bootstrap = bootstrap, method = method)
-    prediction <- predict(forest, subsets[[i]], predictionType)
+    forest <- MOWRandomForest::randomForest(formula, trainSet, attributesToChooseCount = numberOfAttributes, numberOfTrees = numberOfTrees, bootstrap = bootstrap, method = method, ...)
+    prediction <- predict.randomForest(forest, subsets[[i]], predictionType)
 
     if (changeFactor){
       prediction <- unname(prediction)
